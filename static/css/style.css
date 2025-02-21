@@ -371,6 +371,7 @@ section {
       }
     }
   }
+ 
 }
 
 @media (width < 60rem) {
@@ -382,6 +383,12 @@ section {
       .img-container img {
         width: 120%;
       }
+    }
+  }
+
+  #faq{
+    & .faq-items details{
+      width: 80vw;
     }
   }
 }
