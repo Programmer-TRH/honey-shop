@@ -178,13 +178,33 @@ section {
   & .logo {
     font-size: var(--font-h2);
   }
-
+ 
   & .nav-items {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
     gap: var(--spacing-md);
   }
+
+  & .open-btn{
+    visibility: hidden;
+    position: absolute;
+    top: 0.25rem;
+    right: 1rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--spacing-md);
+    border: 1px solid var(--cta-color);
+}
+
+& .close-btn{
+    visibility: hidden;
+    position: absolute;
+    top: 0.25rem;
+    right: 1rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--spacing-md);
+    border: 1px solid var(--cta-color);
+   }
 }
 
 #home {
