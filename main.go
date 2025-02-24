@@ -1,25 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 )
 
 func main() {
 
-	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
-
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		path := strings.TrimPrefix(r.URL.Path, "/")
-		if path == "" || path == "/" {
-			http.ServeFile(w, r, "static/index.html")
-			return
-		}
-		filepath := "static/html/" + path + ".html"
-		http.ServeFile(w, r, filepath)
+		fmt.Println("Hello World")
 	})
 
 	log.Println("Server is running on http://localhost:8080")
