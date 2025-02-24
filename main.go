@@ -18,7 +18,7 @@ func main() {
 			http.ServeFile(w, r, "static/index.html")
 			return
 		}
-		filepath := "static/html" + path + ".html"
+		filepath := "static/html/" + path + ".html"
 		http.ServeFile(w, r, filepath)
 	})
 

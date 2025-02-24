@@ -1,3 +1,44 @@
+
+@media (width < 35rem) {
+    .two-col {
+      grid-template-columns: 1fr;
+    }
+    #home {
+      & .img-container {
+        margin-top: 1rem;
+      }
+    }
+  
+    #shop {
+      .product-section {
+        .img-container img {
+          width: 80%;
+        }
+      }
+    }
+   
+  }
+  
+  @media (width < 60rem) {
+    #shop {
+      .product-section {
+        .title {
+          padding-bottom: 1.5rem;
+        }
+        .img-container img {
+          width: 120%;
+        }
+      }
+    }
+  
+    #faq{
+      & .faq-items details{
+        width: 80vw;
+      }
+    }
+  }
+  
+
 @media (width < 70rem){
     #header:has(#toggle-btn:checked) .nav-items {
         transform: translateX(0);
