@@ -20,11 +20,20 @@ func init() {
 
 func Register(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method != http.MethodPost {
-		err := http.StatusMethodNotAllowed
-		http.Error(w, "Invalid Method", err)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
 		return
 	}
+
+	// if r.Method != http.MethodPost {
+	// 	err := http.StatusMethodNotAllowed
+	// 	http.Error(w, "Invalid Method", err)
+	// 	return
+	// }
 
 	username := r.FormValue("username")
 	password := r.FormValue("password")
@@ -57,6 +66,11 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
 	if r.Method != http.MethodPost {
 		err := http.StatusMethodNotAllowed
 		http.Error(w, "Invalid Method", err)
