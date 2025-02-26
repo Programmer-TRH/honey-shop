@@ -18,62 +18,84 @@ func init() {
 	fmt.Println(users)
 }
 
+func renderHTMLResponse(w http.ResponseWriter, message string, isSuccess bool, statusCode int) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(statusCode)
+
+	statusClass := "success"
+	if !isSuccess {
+		statusClass = "error"
+	}
+	fmt.Fprintf(w, `<div class="%s"><p>%s</p></div>`, statusClass, message)
+
+}
+
 func Register(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, HX-Request, HX-Trigger, HX-Current-URL, HX-Target, HX-Boosted")
 
 	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
-	// if r.Method != http.MethodPost {
-	// 	err := http.StatusMethodNotAllowed
-	// 	http.Error(w, "Invalid Method", err)
-	// 	return
-	// }
+	// Ensure it's a POST request
+	if r.Method != http.MethodPost {
+		renderHTMLResponse(w, "Invalid request method", false, http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Parse form data
+	if err := r.ParseForm(); err != nil {
+		renderHTMLResponse(w, "Failed to parse form data", false, http.StatusBadRequest)
+		return
+	}
 
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
+	// Validate inputs
 	if len(username) < 4 || len(password) < 8 {
-		err := http.StatusNotAcceptable
-		http.Error(w, "Username must be at least 4 characters and password must be at least 8 characters", err)
+		renderHTMLResponse(w, "Username must be at least 4 characters and password must be at least 8 characters", false, http.StatusNotAcceptable)
 		return
 	}
 
-	if _, ok := users[username]; ok {
-		err := http.StatusConflict
-		http.Error(w, "Username already exists", err)
+	// Check if user exists
+	if _, exists := users[username]; exists {
+		renderHTMLResponse(w, "Username already exists", false, http.StatusConflict)
 		return
 	}
 
+	// Hash password
 	hashedPassword, err := HashedPassword(password)
-
 	if err != nil {
-		err := http.StatusInternalServerError
-		http.Error(w, "Error hashing password", err)
+		renderHTMLResponse(w, "Error hashing password", false, http.StatusInternalServerError)
 		return
 	}
 
+	// Save user
 	users[username] = LoginModel{
 		HashedPassword: hashedPassword,
 	}
 
-	fmt.Fprintln(w, "User Registerd Successfully")
+	// Return success message
+	renderHTMLResponse(w, "User registered successfully!", true, http.StatusOK)
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, HX-Request, HX-Trigger, HX-Current-URL, HX-Target, HX-Boosted, X-CSRF-Token")
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 
 	if r.Method != http.MethodPost {
-		err := http.StatusMethodNotAllowed
-		http.Error(w, "Invalid Method", err)
+		renderHTMLResponse(w, "Invalid request method", false, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -82,8 +104,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	user, ok := users[username]
 	if !ok || !CheckPassword(password, user.HashedPassword) {
-		err := http.StatusUnauthorized
-		http.Error(w, "Invalid usename or password", err)
+		renderHTMLResponse(w, "Invalid username or password", false, http.StatusUnauthorized)
 		return
 	}
 
@@ -109,16 +130,26 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	user.CSRFToken = csrfToken
 	users[username] = user
 
-	fmt.Fprintln(w, "User logged in successfully!")
+	renderHTMLResponse(w, fmt.Sprintf("Logged in successfully! Welcome %s", username), true, http.StatusOK)
 
 }
 
 func Protected(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, HX-Request, HX-Trigger, HX-Current-URL, HX-Target, HX-Boosted")
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	if r.Method != http.MethodPost {
 		err := http.StatusMethodNotAllowed
 		http.Error(w, "Invalid Method", err)
 		return
 	}
+
 	if err := Authorize(r); err != nil {
 		err := http.StatusUnauthorized
 		http.Error(w, "Unauthorized", err)
@@ -130,6 +161,20 @@ func Protected(w http.ResponseWriter, r *http.Request) {
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, HX-Request, HX-Trigger, HX-Current-URL, HX-Target, HX-Boosted")
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		err := http.StatusMethodNotAllowed
+		http.Error(w, "Invalid Method", err)
+		return
+	}
 
 	if err := Authorize(r); err != nil {
 		err := http.StatusUnauthorized
