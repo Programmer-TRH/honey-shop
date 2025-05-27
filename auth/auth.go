@@ -131,7 +131,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	users[username] = user
 
 	renderHTMLResponse(w, fmt.Sprintf("Logged in successfully! Welcome %s", username), true, http.StatusOK)
-
 }
 
 func Protected(w http.ResponseWriter, r *http.Request) {
@@ -200,6 +199,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	user.CSRFToken = ""
 	users[username] = user
 
-	fmt.Fprintln(w, "Logged out successfully!")
+	w.Header().Set("Content-Type", "text/html")
+	fmt.Fprintln(w, "<p>Logged out successfully!</p>")
 
 }
