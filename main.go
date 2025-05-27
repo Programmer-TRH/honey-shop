@@ -9,7 +9,7 @@ import (
 	"github.com/Programmer-TRH/hoeny-shop/auth"
 )
 
-func main() {
+func Main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Hello World")
