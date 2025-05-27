@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"text/template"
 
 	"github.com/Programmer-TRH/hoeny-shop/auth"
 )
@@ -12,7 +13,15 @@ import (
 func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("Hello World")
+
+		// fmt.Printf("Hello World")
+
+		tmpl, err := template.ParseFiles("templates/index.html")
+		if err != nil {
+			http.Error(w, "Template parsing error", http.StatusInternalServerError)
+			return
+		}
+		tmpl.Execute(w, nil)
 	})
 
 	http.HandleFunc("/register", auth.Register)
