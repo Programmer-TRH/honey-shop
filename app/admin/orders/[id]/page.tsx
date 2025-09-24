@@ -1,58 +1,83 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, Package, User, MapPin, Phone, Mail, FileText } from "lucide-react"
-import Link from "next/link"
-import { notFound } from "next/navigation"
-import { getOrder, updateOrderStatus, updatePaymentStatus, type Order } from "@/lib/actions/order-actions"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState, useEffect } from "react";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/shared/footer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  ArrowLeft,
+  Package,
+  User,
+  MapPin,
+  Phone,
+  Mail,
+  FileText,
+} from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import {
+  getOrder,
+  updateOrderStatus,
+  updatePaymentStatus,
+  type Order,
+} from "@/lib/actions/order-actions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-export default function OrderDetailsPage({ params }: { params: { id: string } }) {
-  const [order, setOrder] = useState<Order | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+export default function OrderDetailsPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const [order, setOrder] = useState<Order | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadOrder()
-  }, [params.id])
+    loadOrder();
+  }, [params.id]);
 
   const loadOrder = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const orderData = await getOrder(params.id)
+      const orderData = await getOrder(params.id);
       if (!orderData) {
-        notFound()
+        notFound();
       }
-      setOrder(orderData)
+      setOrder(orderData);
     } catch (error) {
-      console.error("Failed to load order:", error)
+      console.error("Failed to load order:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleStatusUpdate = async (newStatus: Order["status"]) => {
-    if (!order) return
+    if (!order) return;
 
-    const result = await updateOrderStatus(order.id, newStatus)
+    const result = await updateOrderStatus(order.id, newStatus);
     if (result.success) {
-      setOrder(result.order)
+      setOrder(result.order);
     }
-  }
+  };
 
-  const handlePaymentUpdate = async (newPaymentStatus: Order["paymentStatus"]) => {
-    if (!order) return
+  const handlePaymentUpdate = async (
+    newPaymentStatus: Order["paymentStatus"]
+  ) => {
+    if (!order) return;
 
-    const result = await updatePaymentStatus(order.id, newPaymentStatus)
+    const result = await updatePaymentStatus(order.id, newPaymentStatus);
     if (result.success) {
-      setOrder(result.order)
+      setOrder(result.order);
     }
-  }
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -61,8 +86,8 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   if (isLoading) {
     return (
@@ -72,17 +97,19 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
           <div className="container mx-auto px-4">
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-              <p className="text-muted-foreground mt-4">Loading order details...</p>
+              <p className="text-muted-foreground mt-4">
+                Loading order details...
+              </p>
             </div>
           </div>
         </main>
         <Footer />
       </div>
-    )
+    );
   }
 
   if (!order) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -104,8 +131,12 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
           <div className="mb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <h1 className="font-serif text-3xl font-bold text-foreground">Order {order.orderNumber}</h1>
-                <p className="text-muted-foreground">Placed on {formatDate(order.createdAt)}</p>
+                <h1 className="font-serif text-3xl font-bold text-foreground">
+                  Order {order.orderNumber}
+                </h1>
+                <p className="text-muted-foreground">
+                  Placed on {formatDate(order.createdAt)}
+                </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
@@ -123,7 +154,10 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                   </SelectContent>
                 </Select>
 
-                <Select value={order.paymentStatus} onValueChange={handlePaymentUpdate}>
+                <Select
+                  value={order.paymentStatus}
+                  onValueChange={handlePaymentUpdate}
+                >
                   <SelectTrigger className="w-full sm:w-32">
                     <SelectValue />
                   </SelectTrigger>
@@ -150,17 +184,26 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                 <CardContent>
                   <div className="space-y-4">
                     {order.items.map((item) => (
-                      <div key={item.id} className="flex items-center space-x-4 p-4 bg-muted/30 rounded-lg">
+                      <div
+                        key={item.id}
+                        className="flex items-center space-x-4 p-4 bg-muted/30 rounded-lg"
+                      >
                         <img
                           src={item.image || "/placeholder.svg"}
                           alt={item.name}
                           className="w-16 h-16 object-cover rounded-lg"
                         />
                         <div className="flex-1">
-                          <h4 className="font-medium text-foreground">{item.name}</h4>
-                          <p className="text-sm text-muted-foreground">{item.weight}</p>
+                          <h4 className="font-medium text-foreground">
+                            {item.name}
+                          </h4>
+                          <p className="text-sm text-muted-foreground">
+                            {item.weight}
+                          </p>
                           <div className="flex items-center justify-between mt-2">
-                            <span className="text-sm text-muted-foreground">Qty: {item.quantity}</span>
+                            <span className="text-sm text-muted-foreground">
+                              Qty: {item.quantity}
+                            </span>
                             <span className="font-semibold text-primary">
                               ৳{(item.price * item.quantity).toLocaleString()}
                             </span>
@@ -183,7 +226,9 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-3">
                     <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{order.customerInfo.name}</span>
+                    <span className="font-medium">
+                      {order.customerInfo.name}
+                    </span>
                   </div>
 
                   <div className="flex items-center space-x-3">
@@ -218,14 +263,20 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
 
                   <div className="flex justify-between">
                     <span>Delivery Fee</span>
-                    <span>{order.deliveryFee === 0 ? "Free" : `৳${order.deliveryFee}`}</span>
+                    <span>
+                      {order.deliveryFee === 0
+                        ? "Free"
+                        : `৳${order.deliveryFee}`}
+                    </span>
                   </div>
 
                   <Separator />
 
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total</span>
-                    <span className="text-primary">৳{order.total.toLocaleString()}</span>
+                    <span className="text-primary">
+                      ৳{order.total.toLocaleString()}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -236,31 +287,55 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Status</span>
-                    <Badge variant={order.status === "delivered" ? "default" : "secondary"} className="capitalize">
+                    <span className="text-sm text-muted-foreground">
+                      Status
+                    </span>
+                    <Badge
+                      variant={
+                        order.status === "delivered" ? "default" : "secondary"
+                      }
+                      className="capitalize"
+                    >
                       {order.status}
                     </Badge>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Payment</span>
-                    <Badge variant={order.paymentStatus === "paid" ? "default" : "secondary"} className="capitalize">
+                    <span className="text-sm text-muted-foreground">
+                      Payment
+                    </span>
+                    <Badge
+                      variant={
+                        order.paymentStatus === "paid" ? "default" : "secondary"
+                      }
+                      className="capitalize"
+                    >
                       {order.paymentStatus}
                     </Badge>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Payment Method</span>
-                    <span className="text-sm font-medium uppercase">{order.paymentMethod}</span>
+                    <span className="text-sm text-muted-foreground">
+                      Payment Method
+                    </span>
+                    <span className="text-sm font-medium uppercase">
+                      {order.paymentMethod}
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Delivery</span>
-                    <span className="text-sm font-medium capitalize">{order.deliveryMethod}</span>
+                    <span className="text-sm text-muted-foreground">
+                      Delivery
+                    </span>
+                    <span className="text-sm font-medium capitalize">
+                      {order.deliveryMethod}
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Est. Delivery</span>
+                    <span className="text-sm text-muted-foreground">
+                      Est. Delivery
+                    </span>
                     <span className="text-sm font-medium">
                       {new Date(order.estimatedDelivery).toLocaleDateString()}
                     </span>
@@ -277,7 +352,9 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">{order.notes}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {order.notes}
+                    </p>
                   </CardContent>
                 </Card>
               )}
@@ -287,5 +364,5 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
       </main>
       <Footer />
     </div>
-  )
+  );
 }

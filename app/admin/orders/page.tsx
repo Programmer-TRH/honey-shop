@@ -1,23 +1,46 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Package, Clock, CheckCircle, Truck, XCircle, Search, Eye, DollarSign, ShoppingCart } from "lucide-react"
-import Link from "next/link"
+import { useState, useEffect } from "react";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/shared/footer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Package,
+  Clock,
+  CheckCircle,
+  Truck,
+  XCircle,
+  Search,
+  Eye,
+  DollarSign,
+  ShoppingCart,
+} from "lucide-react";
+import Link from "next/link";
 import {
   getAllOrders,
   getOrderStats,
   updateOrderStatus,
   updatePaymentStatus,
   type Order,
-} from "@/lib/actions/order-actions"
+} from "@/lib/actions/order-actions";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -26,7 +49,7 @@ const statusColors = {
   shipped: "bg-orange-100 text-orange-800",
   delivered: "bg-green-100 text-green-800",
   cancelled: "bg-red-100 text-red-800",
-}
+};
 
 const statusIcons = {
   pending: Clock,
@@ -35,58 +58,71 @@ const statusIcons = {
   shipped: Truck,
   delivered: CheckCircle,
   cancelled: XCircle,
-}
+};
 
 export default function OrderManagementPage() {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [stats, setStats] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [paymentFilter, setPaymentFilter] = useState<string>("all")
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [stats, setStats] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [paymentFilter, setPaymentFilter] = useState<string>("all");
 
   useEffect(() => {
-    loadData()
-  }, [])
+    loadData();
+  }, []);
 
   const loadData = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const [ordersData, statsData] = await Promise.all([getAllOrders(), getOrderStats()])
-      setOrders(ordersData)
-      setStats(statsData)
+      const [ordersData, statsData] = await Promise.all([
+        getAllOrders(),
+        getOrderStats(),
+      ]);
+      setOrders(ordersData);
+      setStats(statsData);
     } catch (error) {
-      console.error("Failed to load data:", error)
+      console.error("Failed to load data:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  const handleStatusUpdate = async (orderId: string, newStatus: Order["status"]) => {
-    const result = await updateOrderStatus(orderId, newStatus)
+  const handleStatusUpdate = async (
+    orderId: string,
+    newStatus: Order["status"]
+  ) => {
+    const result = await updateOrderStatus(orderId, newStatus);
     if (result.success) {
-      loadData() // Refresh data
+      loadData(); // Refresh data
     }
-  }
+  };
 
-  const handlePaymentUpdate = async (orderId: string, newPaymentStatus: Order["paymentStatus"]) => {
-    const result = await updatePaymentStatus(orderId, newPaymentStatus)
+  const handlePaymentUpdate = async (
+    orderId: string,
+    newPaymentStatus: Order["paymentStatus"]
+  ) => {
+    const result = await updatePaymentStatus(orderId, newPaymentStatus);
     if (result.success) {
-      loadData() // Refresh data
+      loadData(); // Refresh data
     }
-  }
+  };
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
       order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customerInfo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customerInfo.email.toLowerCase().includes(searchTerm.toLowerCase())
+      order.customerInfo.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      order.customerInfo.email.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === "all" || order.status === statusFilter
-    const matchesPayment = paymentFilter === "all" || order.paymentStatus === paymentFilter
+    const matchesStatus =
+      statusFilter === "all" || order.status === statusFilter;
+    const matchesPayment =
+      paymentFilter === "all" || order.paymentStatus === paymentFilter;
 
-    return matchesSearch && matchesStatus && matchesPayment
-  })
+    return matchesSearch && matchesStatus && matchesPayment;
+  });
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -95,8 +131,8 @@ export default function OrderManagementPage() {
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   if (isLoading) {
     return (
@@ -112,7 +148,7 @@ export default function OrderManagementPage() {
         </main>
         <Footer />
       </div>
-    )
+    );
   }
 
   return (
@@ -122,8 +158,12 @@ export default function OrderManagementPage() {
         <div className="container mx-auto px-4">
           {/* Page Header */}
           <div className="mb-8">
-            <h1 className="font-serif text-3xl font-bold text-foreground mb-2">Order Management</h1>
-            <p className="text-muted-foreground">Manage and track all customer orders</p>
+            <h1 className="font-serif text-3xl font-bold text-foreground mb-2">
+              Order Management
+            </h1>
+            <p className="text-muted-foreground">
+              Manage and track all customer orders
+            </p>
           </div>
 
           {/* Stats Cards */}
@@ -131,45 +171,67 @@ export default function OrderManagementPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Orders
+                  </CardTitle>
                   <ShoppingCart className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.totalOrders}</div>
-                  <p className="text-xs text-muted-foreground">{stats.pendingOrders} pending</p>
+                  <p className="text-xs text-muted-foreground">
+                    {stats.pendingOrders} pending
+                  </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Revenue
+                  </CardTitle>
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">৳{stats.totalRevenue.toLocaleString()}</div>
-                  <p className="text-xs text-muted-foreground">৳{stats.pendingRevenue.toLocaleString()} pending</p>
+                  <div className="text-2xl font-bold">
+                    ৳{stats.totalRevenue.toLocaleString()}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    ৳{stats.pendingRevenue.toLocaleString()} pending
+                  </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Delivered</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Delivered
+                  </CardTitle>
                   <CheckCircle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.deliveredOrders}</div>
-                  <p className="text-xs text-muted-foreground">{stats.shippedOrders} shipped</p>
+                  <div className="text-2xl font-bold">
+                    {stats.deliveredOrders}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {stats.shippedOrders} shipped
+                  </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Processing</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Processing
+                  </CardTitle>
                   <Package className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.confirmedOrders}</div>
-                  <p className="text-xs text-muted-foreground">{stats.cancelledOrders} cancelled</p>
+                  <div className="text-2xl font-bold">
+                    {stats.confirmedOrders}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {stats.cancelledOrders} cancelled
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -243,61 +305,98 @@ export default function OrderManagementPage() {
                   </TableHeader>
                   <TableBody>
                     {filteredOrders.map((order) => {
-                      const StatusIcon = statusIcons[order.status]
+                      const StatusIcon = statusIcons[order.status];
                       return (
                         <TableRow key={order.id}>
                           <TableCell>
                             <div>
-                              <div className="font-medium">{order.orderNumber}</div>
-                              <div className="text-sm text-muted-foreground">{order.deliveryMethod}</div>
+                              <div className="font-medium">
+                                {order.orderNumber}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {order.deliveryMethod}
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div>
-                              <div className="font-medium">{order.customerInfo.name}</div>
-                              <div className="text-sm text-muted-foreground">{order.customerInfo.email}</div>
+                              <div className="font-medium">
+                                {order.customerInfo.name}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {order.customerInfo.email}
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="text-sm">
-                              {order.items.length} item{order.items.length !== 1 ? "s" : ""}
+                              {order.items.length} item
+                              {order.items.length !== 1 ? "s" : ""}
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="font-medium">৳{order.total.toLocaleString()}</div>
+                            <div className="font-medium">
+                              ৳{order.total.toLocaleString()}
+                            </div>
                             {order.deliveryFee > 0 && (
-                              <div className="text-sm text-muted-foreground">+৳{order.deliveryFee} delivery</div>
+                              <div className="text-sm text-muted-foreground">
+                                +৳{order.deliveryFee} delivery
+                              </div>
                             )}
                           </TableCell>
                           <TableCell>
                             <Select
                               value={order.status}
-                              onValueChange={(value) => handleStatusUpdate(order.id, value as Order["status"])}
+                              onValueChange={(value) =>
+                                handleStatusUpdate(
+                                  order.id,
+                                  value as Order["status"]
+                                )
+                              }
                             >
                               <SelectTrigger className="w-32">
                                 <div className="flex items-center">
                                   <StatusIcon className="h-4 w-4 mr-2" />
-                                  <span className="capitalize">{order.status}</span>
+                                  <span className="capitalize">
+                                    {order.status}
+                                  </span>
                                 </div>
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="confirmed">Confirmed</SelectItem>
-                                <SelectItem value="processing">Processing</SelectItem>
+                                <SelectItem value="confirmed">
+                                  Confirmed
+                                </SelectItem>
+                                <SelectItem value="processing">
+                                  Processing
+                                </SelectItem>
                                 <SelectItem value="shipped">Shipped</SelectItem>
-                                <SelectItem value="delivered">Delivered</SelectItem>
-                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                                <SelectItem value="delivered">
+                                  Delivered
+                                </SelectItem>
+                                <SelectItem value="cancelled">
+                                  Cancelled
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                           </TableCell>
                           <TableCell>
                             <Select
                               value={order.paymentStatus}
-                              onValueChange={(value) => handlePaymentUpdate(order.id, value as Order["paymentStatus"])}
+                              onValueChange={(value) =>
+                                handlePaymentUpdate(
+                                  order.id,
+                                  value as Order["paymentStatus"]
+                                )
+                              }
                             >
                               <SelectTrigger className="w-24">
                                 <Badge
-                                  variant={order.paymentStatus === "paid" ? "default" : "secondary"}
+                                  variant={
+                                    order.paymentStatus === "paid"
+                                      ? "default"
+                                      : "secondary"
+                                  }
                                   className="capitalize"
                                 >
                                   {order.paymentStatus}
@@ -311,7 +410,9 @@ export default function OrderManagementPage() {
                             </Select>
                           </TableCell>
                           <TableCell>
-                            <div className="text-sm">{formatDate(order.createdAt)}</div>
+                            <div className="text-sm">
+                              {formatDate(order.createdAt)}
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Button asChild variant="outline" size="sm">
@@ -322,7 +423,7 @@ export default function OrderManagementPage() {
                             </Button>
                           </TableCell>
                         </TableRow>
-                      )
+                      );
                     })}
                   </TableBody>
                 </Table>
@@ -331,9 +432,13 @@ export default function OrderManagementPage() {
               {filteredOrders.length === 0 && (
                 <div className="text-center py-8">
                   <Package className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">No orders found</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    No orders found
+                  </h3>
                   <p className="text-muted-foreground">
-                    {searchTerm || statusFilter !== "all" || paymentFilter !== "all"
+                    {searchTerm ||
+                    statusFilter !== "all" ||
+                    paymentFilter !== "all"
                       ? "Try adjusting your filters"
                       : "Orders will appear here once customers start placing them"}
                   </p>
@@ -345,5 +450,5 @@ export default function OrderManagementPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
