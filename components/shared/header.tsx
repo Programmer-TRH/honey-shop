@@ -3,7 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Menu, Phone, Heart } from "lucide-react";
 import { CartDrawer } from "./cart-drawer";
@@ -79,7 +84,17 @@ export function Header() {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80">
+              <SheetContent side="right" className="w-80 p-4">
+                <SheetTitle>
+                  <Link href="/" className="flex items-center space-x-2">
+                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
+                      <div className="h-4 w-4 bg-primary-foreground rounded-full opacity-80"></div>
+                    </div>
+                    <span className="font-serif text-xl font-bold text-foreground">
+                      Pure Honey
+                    </span>
+                  </Link>
+                </SheetTitle>
                 <div className="flex flex-col space-y-4 mt-8">
                   {navigation.map((item) => (
                     <Link

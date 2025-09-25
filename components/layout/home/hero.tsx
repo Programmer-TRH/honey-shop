@@ -13,8 +13,8 @@ export function Hero() {
 
       {/* Hero Image */}
 
-      <div className="container mx-auto px-4 py-8 relative z-10">
-        <div className="absolute right-0 top-0 h-full w-1/2 hidden lg:block p-8">
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="absolute right-0 top-0 h-full w-1/2 hidden lg:block p-4">
           <Image
             src={HeroImage}
             alt="Premium honey jar with natural honeycomb"

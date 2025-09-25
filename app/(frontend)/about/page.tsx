@@ -8,16 +8,11 @@ import { OfferBanner } from "@/components/shared/offer-banner";
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <OfferBanner />
-      <Header />
-      <main>
-        <AboutHero />
-        <OurStory />
-        <OurValues />
-        <Certifications />
-      </main>
-      <Footer />
-    </div>
+    <>
+      <AboutHero />
+      <OurStory />
+      <OurValues />
+      <Certifications />
+    </>
   );
 }
