@@ -3,15 +3,17 @@ import Shop from "@/components/layout/shop/shop";
 import StarCount from "@/components/layout/shop/star-count";
 import { Badge } from "@/components/ui/badge";
 import { Shield } from "lucide-react";
+import { Suspense } from "react";
 
-export default function ShopPage() {
+export default function ShopPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto p-4 md:py-8">
       <div className="mb-12 text-center">
-        <Badge
-          variant="secondary"
-          className="bg-primary/15 text-primary border-primary/30 px-4 py-2 mb-6"
-        >
+        <Badge variant="custom" size={"sm"} className="mb-6">
           <Shield className="h-4 w-4 mr-2" />
           100% Pure & Natural
         </Badge>
@@ -24,11 +26,13 @@ export default function ShopPage() {
           finest apiaries across Bangladesh.
         </p>
 
-        <StarCount />
+        <StarCount className="justify-center mb-8" />
         <SearchBar />
       </div>
       <div className="flex flex-col lg:flex-row gap-8">
-        <Shop />
+        <Suspense fallback={<div>Loading...</div>}>
+          <Shop searchParams={searchParams} />
+        </Suspense>
       </div>
     </div>
   );

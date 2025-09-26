@@ -38,7 +38,7 @@ export default function RootLayout({
       >
         <OfferBanner />
         <Header />
-        <main className="py-8">
+        <main>
           <Suspense fallback={null}>{children}</Suspense>
         </main>
         <Footer />

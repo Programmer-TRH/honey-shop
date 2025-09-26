@@ -1,9 +1,10 @@
+import { cn } from "@/lib/utils";
 import { Star } from "lucide-react";
 import React from "react";
 
-export default function StarCount() {
+export default function StarCount({ className }: { className?: string }) {
   return (
-    <div className="flex justify-center items-center space-x-2 mb-8">
+    <div className={cn("flex items-center space-x-2", className)}>
       <div className="flex items-center space-x-1">
         {[...Array(5)].map((_, i) => (
           <Star key={i} className="h-5 w-5 fill-primary text-primary" />

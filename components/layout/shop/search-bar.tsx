@@ -1,43 +1,47 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 import { useParsedQuery } from "@/hooks/useParsedQuery";
-import { useDebounce } from "@/hooks/use-debounce";
+import { useDebounceCallback } from "@/hooks/use-debounce";
 import { searchSchema } from "@/lib/shcema/search-schema";
 
 export function SearchBar() {
   const { query, updateQuery } = useParsedQuery(searchSchema);
-  const [searchQuery, setSearchQuery] = useState(query.q || "");
-  const debouncedQuery = useDebounce(searchQuery, 500);
+  const [inputValue, setInputValue] = useState(query.q || "");
 
-  useEffect(() => {
-    updateQuery({
-      q: debouncedQuery.trim() || null,
-      page: "1",
-    });
-  }, [debouncedQuery, updateQuery]);
-
-  useEffect(() => {
-    if (query.q !== searchQuery) {
-      setSearchQuery(query.q || "");
-    }
-  }, [query.q]);
-
-  const clearSearch = useCallback(() => {
-    setSearchQuery("");
-    updateQuery({ q: null, page: "1" });
-  }, [updateQuery]);
-
-  const handleSearch = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
+  useDebounceCallback(
+    (debouncedValue: string) => {
       updateQuery({
-        q: searchQuery.trim() || null,
+        q: debouncedValue.trim() || null,
         page: "1",
       });
     },
-    [searchQuery, updateQuery]
+    inputValue,
+    500
+  );
+
+  // Input change handler
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setInputValue(e.target.value);
+    },
+    []
+  );
+
+  // Clear search
+  const clearSearch = useCallback(() => {
+    setInputValue("");
+    updateQuery({ q: null, page: "1" });
+  }, [updateQuery]);
+
+  // Submit on Enter
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      updateQuery({ q: inputValue.trim() || null, page: "1" });
+    },
+    [inputValue, updateQuery]
   );
 
   return (
@@ -47,11 +51,11 @@ export function SearchBar() {
         <Input
           type="text"
           placeholder="Search honey varieties, types..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={inputValue}
+          onChange={handleInputChange}
           className="pl-10 pr-10 py-3 text-base border-2 focus:border-primary transition-colors duration-150"
         />
-        {searchQuery && (
+        {inputValue && (
           <button
             type="button"
             onClick={clearSearch}

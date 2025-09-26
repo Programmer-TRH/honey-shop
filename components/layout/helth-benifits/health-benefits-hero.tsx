@@ -1,14 +1,17 @@
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Heart, Shield, Zap } from "lucide-react"
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Heart, Shield, Zap } from "lucide-react";
+import Link from "next/link";
 
 export function HealthBenefitsHero() {
   return (
-    <section className="relative py-20 bg-gradient-to-br from-green-50 to-primary/5">
+    <section className="relative py-8 md:py-16 bg-gradient-to-br from-green-50 to-primary/5">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <Badge className="mb-6 bg-green-100 text-green-700 border-green-200">
+          <Badge
+            variant="secondary"
+            className="bg-primary/10 text-primary border-primary/20 mb-6"
+          >
             <Heart className="h-3 w-3 mr-1" />
             Scientifically Proven Health Benefits
           </Badge>
@@ -19,8 +22,9 @@ export function HealthBenefitsHero() {
           </h1>
 
           <p className="text-xl text-muted-foreground mb-8 text-pretty leading-relaxed max-w-3xl mx-auto">
-            Discover why honey has been treasured for over 4,000 years as both food and medicine. Our pure, unprocessed
-            honey contains over 200 beneficial compounds that support your health naturally.
+            Discover why honey has been treasured for over 4,000 years as both
+            food and medicine. Our pure, unprocessed honey contains over 200
+            beneficial compounds that support your health naturally.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 mb-8">
@@ -44,5 +48,5 @@ export function HealthBenefitsHero() {
         </div>
       </div>
     </section>
-  )
+  );
 }

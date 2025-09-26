@@ -9,7 +9,7 @@ export interface Product {
   reviews: number;
   images: string[];
   badge: string | null;
-  inStock: boolean;
+  availability: string;
   type: string;
   description: string;
   benefits: string[];

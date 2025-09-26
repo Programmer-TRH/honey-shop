@@ -1,98 +1,5 @@
-// import { NextRequest, NextResponse } from "next/server";
-// import { connectToDatabase } from "@/lib/mongodb";
-
-// export async function GET(
-//   req: NextRequest,
-//   { params }: { params: { collection: string } }
-// ) {
-//   try {
-//     const db = await connectToDatabase();
-//     const { collection } = params;
-//     const { searchParams } = new URL(req.url);
-
-//     // ---- 1️⃣ Parse query params ----
-//     const q = searchParams.get("q") || "";
-//     const page = Math.max(parseInt(searchParams.get("page") || "1", 10), 1);
-//     const limit = Math.min(
-//       parseInt(searchParams.get("limit") || "10", 10),
-//       100
-//     );
-//     const sortParam = searchParams.get("sort") || "createdAt:asc";
-
-//     // ---- 2️⃣ Build filter query ----
-//     const where: any = {};
-
-//     // Generic search (on specified searchable fields)
-//     const searchableFields = getSearchableFields(collection); // define per collection
-//     if (q && searchableFields.length > 0) {
-//       where.$or = searchableFields.map((field) => ({
-//         [field]: { $regex: q, $options: "i" },
-//       }));
-//     }
-
-//     // Additional filters (exclude special params)
-//     searchParams.forEach((value, key) => {
-//       if (!["q", "page", "limit", "sort"].includes(key)) {
-//         if (value.includes(","))
-//           where[key] = { $in: value.split(",") }; // multiple values
-//         else where[key] = value;
-//       }
-//     });
-
-//     // ---- 3️⃣ Sorting ----
-//     const [sortField, sortDir] = sortParam.split(":");
-//     const sortObj: Record<string, 1 | -1> = {
-//       [sortField]: sortDir === "desc" ? -1 : 1,
-//     };
-
-//     // ---- 4️⃣ Pagination ----
-//     const skip = (page - 1) * limit;
-
-//     // ---- 5️⃣ Query database ----
-//     const coll = db.collection(collection);
-//     const [items, total] = await Promise.all([
-//       coll.find(where).sort(sortObj).skip(skip).limit(limit).toArray(),
-//       coll.countDocuments(where),
-//     ]);
-
-//     return NextResponse.json({
-//       success: true,
-//       data: items,
-//       meta: {
-//         total,
-//         page,
-//         limit,
-//         totalPages: Math.ceil(total / limit),
-//       },
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     return NextResponse.json(
-//       {
-//         success: false,
-//         error: "Failed to fetch data.",
-//         data: [],
-//         meta: { total: 0, page: 1, limit: 10, totalPages: 0 },
-//       },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-// // Example: define searchable fields per collection
-// function getSearchableFields(collection: string) {
-//   switch (collection) {
-//     case "users":
-//       return ["name", "email"];
-//     case "products":
-//       return ["name", "type", "category"];
-//     case "blogs":
-//       return ["title", "content"];
-//     default:
-//       return [];
-//   }
-// }
-
+import { parseSearchParams } from "@/lib/query/parseSearchParams";
+import { productSchema } from "@/lib/shcema/product-schema";
 import { NextRequest, NextResponse } from "next/server";
 
 // ---- 0️⃣ Mock data ----
@@ -133,7 +40,7 @@ const mockData: Record<string, any[]> = {
         "/honey-jar-top-view.jpg",
       ],
       badge: "Bestseller",
-      inStock: true,
+      availability: "in-stock",
       type: "Wildflower",
       description:
         "Our premium wildflower honey is sourced from pristine meadows across Bangladesh. This raw, unprocessed honey retains all its natural enzymes, vitamins, and minerals.",
@@ -159,12 +66,12 @@ const mockData: Record<string, any[]> = {
       name: "Pure Acacia Honey",
       weight: "250g",
       price: 450,
-      originalPrice: null,
+      originalPrice: 600,
       rating: 4.9,
       reviews: 89,
       images: ["/acacia-honey-jar-250g.jpg"],
       badge: "Premium",
-      inStock: true,
+      availability: "out-of-stock",
       type: "Acacia",
       description:
         "Light colored honey with delicate floral taste from acacia flowers.",
@@ -193,7 +100,7 @@ const mockData: Record<string, any[]> = {
       reviews: 56,
       images: ["/sundarban-honey-jar-1kg.jpg"],
       badge: "Limited",
-      inStock: true,
+      availability: "in-stock",
       type: "Sundarban",
       description: "Rare honey from the world's largest mangrove forest.",
       benefits: [
@@ -221,7 +128,7 @@ const mockData: Record<string, any[]> = {
       reviews: 73,
       images: ["/mustard-honey-jar-500g.jpg"],
       badge: null,
-      inStock: true,
+      availability: "in-stock",
       type: "Mustard",
       description: "Golden honey with distinctive mustard flower essence.",
       benefits: [
@@ -249,7 +156,7 @@ const mockData: Record<string, any[]> = {
       reviews: 42,
       images: ["/litchi-honey-jar-250g.jpg"],
       badge: "New",
-      inStock: false,
+      availability: "in-stock",
       type: "Litchi",
       description: "Sweet honey with subtle litchi fruit notes.",
       benefits: [
@@ -276,7 +183,7 @@ const mockData: Record<string, any[]> = {
       reviews: 31,
       images: ["/forest-honey-jar-2kg.jpg"],
       badge: "Premium",
-      inStock: true,
+      availability: "in-stock",
       type: "Forest",
       description: "Unprocessed honey from deep forest sources.",
       benefits: [
@@ -303,7 +210,7 @@ const mockData: Record<string, any[]> = {
       reviews: 95,
       images: ["/clover-honey-jar-500g.jpg"],
       badge: null,
-      inStock: true,
+      availability: "in-stock",
       type: "Clover",
       description: "Mild and sweet honey from clover fields.",
       benefits: [
@@ -330,7 +237,7 @@ const mockData: Record<string, any[]> = {
       reviews: 67,
       images: ["/eucalyptus-honey-jar-250g.jpg"],
       badge: null,
-      inStock: true,
+      availability: "in-stock",
       type: "Eucalyptus",
       description: "Distinctive honey with herbal eucalyptus notes.",
       benefits: [
@@ -357,7 +264,7 @@ const mockData: Record<string, any[]> = {
       reviews: 54,
       images: ["/ajwain-honey-jar-500g.jpg"],
       badge: "Medicinal",
-      inStock: true,
+      availability: "out-of-stock",
       type: "Ajwain",
       description: "Strong flavored honey with digestive benefits.",
       benefits: [
@@ -384,7 +291,7 @@ const mockData: Record<string, any[]> = {
       reviews: 40,
       images: ["/neem-honey-jar-250g.jpg"],
       badge: "Ayurvedic",
-      inStock: true,
+      availability: "in-stock",
       type: "Neem",
       description: "Dark honey with medicinal neem properties.",
       benefits: [
@@ -411,7 +318,7 @@ const mockData: Record<string, any[]> = {
       reviews: 62,
       images: ["/jamun-honey-jar-500g.jpg"],
       badge: "Diabetic-Friendly",
-      inStock: true,
+      availability: "in-stock",
       type: "Jamun",
       description: "Low glycemic honey from jamun blossoms.",
       benefits: [
@@ -438,7 +345,7 @@ const mockData: Record<string, any[]> = {
       reviews: 38,
       images: ["/tulsi-honey-jar-250g.jpg"],
       badge: null,
-      inStock: true,
+      availability: "in-stock",
       type: "Tulsi",
       description: "Herbal honey infused with sacred basil (tulsi).",
       benefits: [
@@ -465,7 +372,7 @@ const mockData: Record<string, any[]> = {
       reviews: 51,
       images: ["/orange-honey-jar-500g.jpg"],
       badge: "Citrus",
-      inStock: true,
+      availability: "in-stock",
       type: "Orange",
       description: "Citrusy honey with refreshing orange blossom flavor.",
       benefits: [
@@ -492,7 +399,7 @@ const mockData: Record<string, any[]> = {
       reviews: 33,
       images: ["/rosewood-honey-jar-1kg.jpg"],
       badge: "Exotic",
-      inStock: true,
+      availability: "in-stock",
       type: "Rosewood",
       description: "Rare honey with woody floral notes from rosewood trees.",
       benefits: [
@@ -519,7 +426,7 @@ const mockData: Record<string, any[]> = {
       reviews: 47,
       images: ["/blackseed-honey-jar-250g.jpg"],
       badge: "Medicinal",
-      inStock: true,
+      availability: "in-stock",
       type: "Black Seed",
       description: "Powerful honey infused with black seed benefits.",
       benefits: [
@@ -603,85 +510,6 @@ const mockData: Record<string, any[]> = {
   ],
 };
 
-// export async function GET(
-//   req: NextRequest,
-//   { params }: { params: { collection: string } }
-// ) {
-//   try {
-//     const { collection } = params;
-//     const { searchParams } = new URL(req.url);
-
-//     const data = mockData[collection] || [];
-
-//     // ---- 1️⃣ Parse query params ----
-//     const q = searchParams.get("q") || "";
-//     const page = Math.max(parseInt(searchParams.get("page") || "1", 10), 1);
-//     const limit = Math.min(
-//       parseInt(searchParams.get("limit") || "10", 10),
-//       100
-//     );
-//     const sortParam = searchParams.get("sort") || "id:asc";
-
-//     // ---- 2️⃣ Build filter query ----
-//     const searchableFields = getSearchableFields(collection);
-//     let filtered = [...data];
-
-//     // Search
-//     if (q && searchableFields.length > 0) {
-//       const regex = new RegExp(q, "i");
-//       filtered = filtered.filter((item) =>
-//         searchableFields.some((field) => regex.test(item[field]))
-//       );
-//     }
-
-//     // Additional filters
-//     searchParams.forEach((value, key) => {
-//       if (!["q", "page", "limit", "sort"].includes(key)) {
-//         const vals = value.split(",");
-//         filtered = filtered.filter((item) => vals.includes(String(item[key])));
-//       }
-//     });
-
-//     // ---- 3️⃣ Sorting ----
-//     const [sortField, sortDir] = sortParam.split(":");
-//     filtered.sort((a, b) => {
-//       if (a[sortField] < b[sortField]) return sortDir === "desc" ? 1 : -1;
-//       if (a[sortField] > b[sortField]) return sortDir === "desc" ? -1 : 1;
-//       return 0;
-//     });
-
-//     // ---- 4️⃣ Pagination ----
-//     const total = filtered.length;
-//     const start = (page - 1) * limit;
-//     const paginated = filtered.slice(start, start + limit);
-
-//     // ---- 5️⃣ Return response ----
-//     return NextResponse.json({
-//       success: true,
-//       data: paginated,
-//       meta: {
-//         total,
-//         page,
-//         limit,
-//         totalPages: Math.ceil(total / limit),
-//       },
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     return NextResponse.json(
-//       {
-//         success: false,
-//         error: "Failed to fetch data.",
-//         data: [],
-//         meta: { total: 0, page: 1, limit: 10, totalPages: 0 },
-//       },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-// Example: define searchable fields per collection
-
 export async function GET(
   req: NextRequest,
   { params }: { params: { collection: string } }
@@ -690,55 +518,69 @@ export async function GET(
     const { collection } = await params;
     const searchParams = req.nextUrl.searchParams;
 
-    // ---- 1️⃣ Convert query params into plain object ----
-    const q = searchParams.get("q") ?? "";
-    const pageRaw = searchParams.get("page") ?? "1";
-    const limitRaw = searchParams.get("limit") ?? "10";
-    const sortParam = searchParams.get("sort") ?? "id:asc";
+    const query = parseSearchParams(searchParams, productSchema);
+    console.log("Parsed Query:", query);
+    const { q, page, limit, sort, ...filters } = query;
+    console.log("Filters:", filters);
 
-    // collect any other filters
-    const filters: Record<string, string> = {};
-    searchParams.forEach((value, key) => {
-      if (!["q", "page", "limit", "sort"].includes(key)) {
-        filters[key] = value;
+    const data = mockData[collection] || [];
+    const searchableFields = getSearchableFields(collection);
+
+    // Filter + Search combined
+    let filtered = data.filter((item) => {
+      // ---- 1️⃣ Search ----
+      let searchMatches = true;
+      if (q && searchableFields.length) {
+        const regex = new RegExp(q, "i");
+        searchMatches = searchableFields.some((field) =>
+          regex.test(item[field])
+        );
+      }
+
+      if (!searchMatches) return false;
+
+      // ---- 2️⃣ Filters ----
+      let filterMatches = true;
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value == null) return;
+
+        const valuesArray = String(value)
+          .split(",")
+          .map((v) => v.trim().toLowerCase());
+
+        const itemValue = String(item[key] ?? "").toLowerCase();
+
+        if (!valuesArray.includes(itemValue)) {
+          filterMatches = false;
+        }
+      });
+
+      return filterMatches;
+    });
+
+    // Sorting
+    const [sortField, sortDir] = sort.split(":");
+    filtered.sort((a, b) => {
+      const aVal = a[sortField];
+      const bVal = b[sortField];
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+
+      if (typeof aVal === "number" && typeof bVal === "number") {
+        return sortDir === "desc" ? bVal - aVal : aVal - bVal;
+      } else {
+        return sortDir === "desc"
+          ? String(bVal).localeCompare(String(aVal))
+          : String(aVal).localeCompare(String(bVal));
       }
     });
 
-    const page = Math.max(parseInt(pageRaw, 10), 1);
-    const limit = Math.min(parseInt(limitRaw, 10), 100);
-
-    const data = mockData[collection] || [];
-    let filtered = [...data];
-
-    // ---- 2️⃣ Search ----
-    const searchableFields = getSearchableFields(collection);
-    if (q && searchableFields.length > 0) {
-      const regex = new RegExp(q, "i");
-      filtered = filtered.filter((item) =>
-        searchableFields.some((field) => regex.test(item[field]))
-      );
-    }
-
-    // ---- 3️⃣ Extra filters ----
-    Object.entries(filters).forEach(([key, value]) => {
-      const vals = value.split(",");
-      filtered = filtered.filter((item) => vals.includes(String(item[key])));
-    });
-
-    // ---- 4️⃣ Sorting ----
-    const [sortField, sortDir] = sortParam.split(":");
-    filtered.sort((a, b) => {
-      if (a[sortField] < b[sortField]) return sortDir === "desc" ? 1 : -1;
-      if (a[sortField] > b[sortField]) return sortDir === "desc" ? -1 : 1;
-      return 0;
-    });
-
-    // ---- 5️⃣ Pagination ----
+    // Pagination
     const total = filtered.length;
     const start = (page - 1) * limit;
     const paginated = filtered.slice(start, start + limit);
 
-    // ---- 6️⃣ Return response ----
     return NextResponse.json({
       success: true,
       data: paginated,

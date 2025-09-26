@@ -465,6 +465,9 @@ import {
 } from "@/actions/wishlist-actions";
 import { toast } from "sonner";
 import Image from "next/image";
+import { useParsedQuery } from "@/hooks/useParsedQuery";
+import { productSchema } from "@/lib/shcema/product-schema";
+import Paggination from "@/components/shared/paggination";
 
 interface Product {
   id: number;
@@ -499,6 +502,8 @@ export function ProductGrid({
     wishlist: Record<number, boolean>;
     cart: Record<number, boolean>;
   }>({ wishlist: {}, cart: {} });
+
+  const { updateQuery } = useParsedQuery(productSchema);
 
   useEffect(() => {
     const loadWishlistStatus = async () => {
@@ -588,7 +593,7 @@ export function ProductGrid({
           </div>
         </div>
 
-        <Select >
+        <Select>
           <SelectTrigger className="w-48 bg-background">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -769,38 +774,11 @@ export function ProductGrid({
           </div>
 
           {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center space-x-2 mt-8">
-              <Button variant="outline" size="sm" disabled={currentPage === 1}>
-                <ChevronLeft className="h-4 w-4" />
-                Previous
-              </Button>
-
-              <div className="flex items-center space-x-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      className="w-10"
-                    >
-                      {page}
-                    </Button>
-                  )
-                )}
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={currentPage === totalPages}
-              >
-                Next
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
+          <Paggination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            updateQuery={updateQuery}
+          />
         </>
       )}
     </div>

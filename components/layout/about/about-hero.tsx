@@ -1,25 +1,25 @@
 import { Badge } from "@/components/ui/badge";
-import { Users, Award, Heart } from "lucide-react";
+import { Users, Award, Heart, BookMarked } from "lucide-react";
+import HoneyCompb from "@/public/honey comb.jpg";
+import Image from "next/image";
 
 export function AboutHero() {
   return (
-    <section className="relative py-16 md:py-24 overflow-hidden">
+    <section className="relative py-8 md:py-16 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
-        <img
-          src="/beekeeper-working-with-hives-natural-setting.jpg"
+        <Image
+          src={HoneyCompb}
           alt="Beekeeper working with hives"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-background/80"></div>
+        <div className="absolute inset-0 bg-background/85"></div>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
-          <Badge
-            variant="secondary"
-            className="bg-primary/10 text-primary border-primary/20 mb-6"
-          >
+          <Badge variant="custom" size={"sm"} className=" mb-6">
+            <BookMarked className="h-3 w-3 mr-1" />
             Our Story
           </Badge>
 

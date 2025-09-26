@@ -2,60 +2,63 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
-import { ZodSchema, infer as zInfer } from "zod";
+import { ZodSchema, z, infer as zInfer } from "zod";
 import { parseSearchParams } from "@/lib/query/parseSearchParams";
+
+type QueryUpdate = Record<
+  string,
+  string | string[] | number | boolean | null | undefined
+>;
 
 export function useParsedQuery<T extends ZodSchema>(schema: T) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  type Query = zInfer<T>; // TypeScript infers the exact type from schema
+  type Query = z.infer<T>;
 
   const query: Query = useMemo(() => {
-    const paramsObj: Record<string, string | string[]> = {};
-
-    searchParams.forEach((value, key) => {
-      if (paramsObj[key]) {
-        const current = paramsObj[key];
-        paramsObj[key] = Array.isArray(current)
-          ? [...current, value]
-          : [current, value];
-      } else {
-        paramsObj[key] = value;
-      }
-    });
-
-    return parseSearchParams(paramsObj, schema) as Query;
+    try {
+      return parseSearchParams(searchParams, schema) as Query;
+    } catch (err) {
+      console.warn("[useParsedQuery] Invalid query params:", err);
+      return {} as Query;
+    }
   }, [searchParams, schema]);
 
   const updateQuery = useCallback(
-    (updates: Record<string, string | string[] | null>) => {
+    (updates: QueryUpdate) => {
       const params = new URLSearchParams(searchParams.toString());
 
       Object.entries(updates).forEach(([key, value]) => {
         params.delete(key);
 
-        if (value === null || value === "") return;
+        if (value === null || value === undefined) return;
 
         if (Array.isArray(value)) {
-          value.forEach((v) => params.append(key, v));
+          value.forEach((v) => params.append(key, String(v)));
         } else {
-          params.append(key, value);
+          params.append(key, String(value));
         }
       });
 
-      // Remove 'page' if no other query exists
-      if (!params.has("q") && params.get("page") === "1") {
+      const pageValue = params.get("page");
+      if (pageValue === "1") {
         params.delete("page");
       }
 
-      router.replace(
-        `${pathname}${params.toString() ? `?${params.toString()}` : ""}`
-      );
+      const queryString = params.toString();
+      const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+
+      if (newUrl !== window.location.pathname + window.location.search) {
+        router.replace(newUrl);
+      }
     },
     [pathname, router, searchParams]
   );
 
-  return { query, updateQuery } as const;
+  return { query, updateQuery } as {
+    query: Query;
+    updateQuery: (updates: QueryUpdate) => void;
+  };
 }

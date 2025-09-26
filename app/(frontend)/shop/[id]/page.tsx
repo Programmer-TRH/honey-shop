@@ -12,7 +12,7 @@ export default async function ProductPage({
 
   return (
     <>
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto p-4 md:py-8">
         <ProductDetails product={product} />
         <RelatedProducts />
       </div>

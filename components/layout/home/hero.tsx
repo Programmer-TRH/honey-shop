@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Shield, Award, Play, ArrowRight } from "lucide-react";
+import { Shield, Play, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import HeroImage from "@/public/hero-img.jpg";
 import Image from "next/image";
+import StarCount from "../shop/star-count";
 
 export function Hero() {
   return (
@@ -13,8 +14,8 @@ export function Hero() {
 
       {/* Hero Image */}
 
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="absolute right-0 top-0 h-full w-1/2 hidden lg:block p-4">
+      <div className="container mx-auto p-4 md:py-8 relative z-10">
+        <div className="absolute right-0 top-0 h-full w-1/2 hidden lg:block p-8">
           <Image
             src={HeroImage}
             alt="Premium honey jar with natural honeycomb"
@@ -28,15 +29,7 @@ export function Hero() {
             100% Pure & Natural
           </Badge>
 
-          <div className="flex items-center space-x-2 mb-4">
-            <div className="flex items-center space-x-1">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-5 w-5 fill-primary text-primary" />
-              ))}
-            </div>
-            <span className="text-lg font-semibold text-gray-700">4.9</span>
-            <span className="text-gray-500">(1,200+ reviews)</span>
-          </div>
+          <StarCount className="mb-4" />
 
           <h1 className="font-serif text-5xl md:text-7xl font-bold text-foreground mb-4 text-balance leading-tight">
             Bangladesh's

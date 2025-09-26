@@ -1,30 +1,18 @@
 import { ContactForm } from "@/components/layout/contact/contact-form";
 import { ContactInfo } from "@/components/layout/contact/contact-info";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Phone, Clock } from "lucide-react";
+import { MessageCircle, Clock } from "lucide-react";
 
 export default function ContactPage() {
   return (
     <>
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto p-4 md:py-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <div className="flex justify-center items-center gap-4 mb-6">
-              <Badge
-                variant="secondary"
-                className="bg-primary/15 text-primary border-primary/30 px-4 py-2"
-              >
-                <MessageCircle className="h-4 w-4 mr-2" />
-                24/7 Customer Support
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="bg-green-50 text-green-700 border-green-200 px-4 py-2"
-              >
-                <Phone className="h-4 w-4 mr-2" />
-                Instant Response
-              </Badge>
-            </div>
+            <Badge variant="custom" size={"sm"} className=" mb-6">
+              <MessageCircle className="h-4 w-4 mr-2" />
+              24/7 Customer Support
+            </Badge>
 
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-6 text-balance">
               We're Here to Help You
