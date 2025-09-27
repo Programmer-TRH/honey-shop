@@ -47,7 +47,9 @@
     "eslint-config-next": "^15.5.3",
     "geist": "latest",
     "input-otp": "latest",
+    "jose": "^6.1.0",
     "lucide-react": "^0.454.0",
+    "mongodb": "^6.20.0",
     "next": "15.5.3",
     "next-themes": "latest",
     "pnpm": "^10.16.0",
@@ -60,8 +62,9 @@
     "sonner": "latest",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^13.0.0",
     "vaul": "latest",
-    "zod": "3.25.67"
+    "zod": "4.1.11"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.9",

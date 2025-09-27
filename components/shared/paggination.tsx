@@ -1,18 +1,20 @@
+"use client";
 import React from "react";
 import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useParsedQuery } from "@/hooks/useParsedQuery";
+import { productSchema } from "@/lib/shcema/product-schema";
 
 interface PaginationProps {
   totalPages: number;
   currentPage: number;
-  updateQuery: (updates: Record<string, string>) => void;
 }
 
 export default function Pagination({
   totalPages,
   currentPage,
-  updateQuery,
 }: PaginationProps) {
+  const { updateQuery } = useParsedQuery(productSchema);
   if (totalPages <= 1) return null;
 
   // Generate page numbers with ellipsis

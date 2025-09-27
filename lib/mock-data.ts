@@ -61,7 +61,7 @@ export const mockProducts: Product[] = [
       "/honey-jar-top-view.jpg",
     ],
     badge: "Bestseller",
-    inStock: true,
+    availability: "in-stock",
     type: "Wildflower",
     description:
       "Our premium wildflower honey is sourced from pristine meadows across Bangladesh. This raw, unprocessed honey retains all its natural enzymes, vitamins, and minerals.",
@@ -92,7 +92,7 @@ export const mockProducts: Product[] = [
     reviews: 89,
     images: ["/acacia-honey-jar-250g.jpg"],
     badge: "Premium",
-    inStock: true,
+    availability: "out-of-stock",
     type: "Acacia",
     description:
       "Light colored honey with delicate floral taste from acacia flowers.",
@@ -121,7 +121,7 @@ export const mockProducts: Product[] = [
     reviews: 56,
     images: ["/sundarban-honey-jar-1kg.jpg"],
     badge: "Limited",
-    inStock: true,
+    availability: "out-of-stock",
     type: "Sundarban",
     description: "Rare honey from the world's largest mangrove forest.",
     benefits: [
@@ -149,7 +149,7 @@ export const mockProducts: Product[] = [
     reviews: 73,
     images: ["/mustard-honey-jar-500g.jpg"],
     badge: null,
-    inStock: true,
+    availability: "in-stock",
     type: "Mustard",
     description: "Golden honey with distinctive mustard flower essence.",
     benefits: [
@@ -177,7 +177,7 @@ export const mockProducts: Product[] = [
     reviews: 42,
     images: ["/litchi-honey-jar-250g.jpg"],
     badge: "New",
-    inStock: false,
+    availability: "in-stock",
     type: "Litchi",
     description: "Sweet honey with subtle litchi fruit notes.",
     benefits: [
@@ -204,7 +204,7 @@ export const mockProducts: Product[] = [
     reviews: 31,
     images: ["/forest-honey-jar-2kg.jpg"],
     badge: "Premium",
-    inStock: true,
+    availability: "in-stock",
     type: "Forest",
     description: "Unprocessed honey from deep forest sources.",
     benefits: [
@@ -231,7 +231,7 @@ export const mockProducts: Product[] = [
     reviews: 95,
     images: ["/clover-honey-jar-500g.jpg"],
     badge: null,
-    inStock: true,
+    availability: "in-stock",
     type: "Clover",
     description: "Mild and sweet honey from clover fields.",
     benefits: [
@@ -258,7 +258,7 @@ export const mockProducts: Product[] = [
     reviews: 67,
     images: ["/eucalyptus-honey-jar-250g.jpg"],
     badge: null,
-    inStock: true,
+    availability: "out-of-stock",
     type: "Eucalyptus",
     description: "Distinctive honey with herbal eucalyptus notes.",
     benefits: [
@@ -285,7 +285,7 @@ export const mockProducts: Product[] = [
     reviews: 54,
     images: ["/ajwain-honey-jar-500g.jpg"],
     badge: "Medicinal",
-    inStock: true,
+    availability: "in-stock",
     type: "Ajwain",
     description: "Strong flavored honey with digestive benefits.",
     benefits: [
@@ -312,7 +312,7 @@ export const mockProducts: Product[] = [
     reviews: 40,
     images: ["/neem-honey-jar-250g.jpg"],
     badge: "Ayurvedic",
-    inStock: true,
+    availability: "in-stock",
     type: "Neem",
     description: "Dark honey with medicinal neem properties.",
     benefits: [
@@ -339,7 +339,7 @@ export const mockProducts: Product[] = [
     reviews: 62,
     images: ["/jamun-honey-jar-500g.jpg"],
     badge: "Diabetic-Friendly",
-    inStock: true,
+    availability: "out-of-stock",
     type: "Jamun",
     description: "Low glycemic honey from jamun blossoms.",
     benefits: [
@@ -366,7 +366,7 @@ export const mockProducts: Product[] = [
     reviews: 38,
     images: ["/tulsi-honey-jar-250g.jpg"],
     badge: null,
-    inStock: true,
+    availability: "in-stock",
     type: "Tulsi",
     description: "Herbal honey infused with sacred basil (tulsi).",
     benefits: [
@@ -393,7 +393,7 @@ export const mockProducts: Product[] = [
     reviews: 51,
     images: ["/orange-honey-jar-500g.jpg"],
     badge: "Citrus",
-    inStock: true,
+    availability: "in-stock",
     type: "Orange",
     description: "Citrusy honey with refreshing orange blossom flavor.",
     benefits: [
@@ -420,7 +420,7 @@ export const mockProducts: Product[] = [
     reviews: 33,
     images: ["/rosewood-honey-jar-1kg.jpg"],
     badge: "Exotic",
-    inStock: true,
+    availability: "in-stock",
     type: "Rosewood",
     description: "Rare honey with woody floral notes from rosewood trees.",
     benefits: [
@@ -447,7 +447,7 @@ export const mockProducts: Product[] = [
     reviews: 47,
     images: ["/blackseed-honey-jar-250g.jpg"],
     badge: "Medicinal",
-    inStock: true,
+    availability: "out-of-stock",
     type: "Black Seed",
     description: "Powerful honey infused with black seed benefits.",
     benefits: [
