@@ -5,7 +5,7 @@ import { createToken } from "@/lib/session";
 import bcrypt from "bcryptjs";
 import z from "zod";
 
-export async function loginAction(initialState, formData) {
+export async function loginAction(initialState: any, formData: FormData) {
   const raw = {
     email: formData.get("email"),
     password: formData.get("password"),
@@ -30,7 +30,7 @@ export async function loginAction(initialState, formData) {
 
   try {
     const client = await connectToDatabase();
-    const db = client.db("b2b-agency");
+    const db = client.db("pure-honey");
     const users = db.collection("users");
 
     const user = await users.findOne({ email: parsed.data.email });
@@ -66,7 +66,7 @@ export async function loginAction(initialState, formData) {
     }
     console.log("Login User Data:", user);
 
-    await createToken({ userId: user.userId, roles: user.roles });
+    await createToken(user.userId, user.role);
 
     return {
       success: true,

@@ -5,12 +5,7 @@ import { GeistMono } from "geist/font/mono";
 import { Playfair_Display } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
-import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
-import { OfferBanner } from "@/components/shared/offer-banner";
-import { Header } from "@/components/shared/header";
-import { Footer } from "@/components/shared/footer";
-import { FloatingCart } from "@/components/shared/floating-cart";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -36,15 +31,8 @@ export default function RootLayout({
       <body
         className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${playfair.variable} bg-background`}
       >
-        <OfferBanner />
-        <Header />
-        <main>
-          <Suspense fallback={null}>{children}</Suspense>
-        </main>
-        <Footer />
-        <FloatingCart />
+        <Suspense fallback={null}>{children}</Suspense>
         <Analytics />
-        <Toaster />
       </body>
     </html>
   );

@@ -5,9 +5,11 @@ import { getProduct } from "@/actions/data-actions";
 export default async function ProductPage({
   params,
 }: {
-  params: { id: string };
+  params: { id: string } | Promise<{ id: string }>;
 }) {
-  const productId = params.id;
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const { id: productId } = resolvedParams;
+
   const product = await getProduct(productId);
 
   return (

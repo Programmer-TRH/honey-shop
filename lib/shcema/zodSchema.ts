@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { v4 as uuidv4 } from "uuid";
 
 const passwordSchema = z
   .string()
@@ -31,9 +32,9 @@ export const preferencesSchema = z.object({
 });
 
 export const userSchema = z.object({
-  id: z.string().uuid().or(z.string().min(1)), // allow uuid or non-empty string
+  userId: z.uuidv4().or(z.string().min(1)), // allow uuid or non-empty string
   name: z.string().min(2, "Name must be at least 2 characters long"),
-  email: z.string().email("Invalid email address"),
+  email: z.email("Invalid email address"),
   role: z.enum(["admin", "user", "manager"]).default("user"),
   status: z.enum(["active", "inactive", "banned"]).default("active"),
   createdAt: z.coerce.date(), // coerce allows string/new Date

@@ -3,14 +3,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { loginAction } from "@/action/auth/loginAction";
+import { loginAction } from "@/actions/loginAction";
 import React, { useActionState } from "react";
 import { LoaderPinwheel, ServerCog } from "lucide-react";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { toast } from "@/hooks/use-toast";
+
+type LoginState = {
+  data?: {
+    email?: string;
+    password?: string;
+    general?: string[];
+    redirectTo?: string;
+  };
+  errors?: {
+    email?: string[];
+    password?: string[];
+    general?: string[];
+    [key: string]: string[] | undefined;
+  } | string;
+  success?: boolean;
+};
 
 export default function Login() {
-  const [state, formAction, isPending] = useActionState(loginAction, undefined);
+  const [state, formAction, isPending] = useActionState<LoginState, FormData>(loginAction, {});
   const router = useRouter();
   React.useEffect(() => {
     if (!state) return;
@@ -18,32 +34,50 @@ export default function Login() {
     // ✅ Success message
     const successMessage = state.data?.general?.[0];
     if (successMessage) {
-      toast.success(successMessage);
+      toast({
+        title: "Success",
+        description: successMessage,
+      });
     }
 
     // ❌ General error message
-    const generalError = state.errors?.general?.[0];
+    const generalError =
+      typeof state.errors === "object" && state.errors?.general?.[0]
+        ? state.errors.general[0]
+        : undefined;
     if (generalError) {
-      toast.error(generalError);
+      toast({
+        title: "Error",
+        description: generalError,
+        variant: "destructive",
+      });
     }
 
     // 🔁 Redirect on success
     if (state.success && state.data?.redirectTo) {
-      router.replace(state.data.redirectTo);
+      router.replace("/dashboard");
     }
 
     // 🧠 Field-level Zod errors
     if (state.errors && typeof state.errors === "object") {
       for (const [field, messages] of Object.entries(state.errors)) {
         if (messages?.length) {
-          toast.error(`${messages[0]}`);
+          toast({
+            title: "Error",
+            description: `${messages[0]}`,
+            variant: "destructive",
+          });
         }
       }
     }
 
     // 🧨 Fallback for unexpected error shape
     if (typeof state.errors === "string") {
-      toast.error(state.errors);
+      toast({
+        title: "Error",
+        description: state?.errors,
+        variant: "destructive",
+      });
     }
   }, [state]);
 
@@ -80,7 +114,7 @@ export default function Login() {
                 defaultValue={state?.data?.email}
                 required
               />
-              {state?.errors?.email?.[0] && (
+              {typeof state?.errors === "object" && state?.errors?.email?.[0] && (
                 <p className="text-red-500 text-sm">{state.errors.email[0]}</p>
               )}
             </div>
@@ -103,7 +137,7 @@ export default function Login() {
                 defaultValue={state?.data?.password}
                 required
               />
-              {state?.errors?.password?.[0] && (
+              {typeof state?.errors === "object" && state?.errors?.password?.[0] && (
                 <p className="text-red-500 text-sm">
                   {state.errors.password[0]}
                 </p>

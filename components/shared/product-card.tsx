@@ -1,18 +1,9 @@
 "use client";
-
-import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart, Heart, Eye, Shield, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { addToCart } from "@/actions/cart-actions";
-import {
-  addToWishlist,
-  removeFromWishlist,
-  isInWishlist,
-} from "@/actions/wishlist-actions";
-import { toast } from "sonner";
 import Image from "next/image";
 import { useParsedQuery } from "@/hooks/useParsedQuery";
 import { productSchema } from "@/lib/shcema/product-schema";
@@ -20,81 +11,14 @@ import PlaceholderImage from "@/public/placeholder.svg";
 import { Product } from "@/lib/mock-data";
 
 export default function ProductCard({ products }: { products: Product[] }) {
-  const [favorites, setFavorites] = useState<number[]>([]);
-  const [loadingStates, setLoadingStates] = useState<{
-    wishlist: Record<number, boolean>;
-    cart: Record<number, boolean>;
-  }>({ wishlist: {}, cart: {} });
-
-  const { query, updateQuery } = useParsedQuery(productSchema);
-
-  useEffect(() => {
-    const loadWishlistStatus = async () => {
-      const wishlistStatus = await Promise.all(
-        products.map(async (product) => ({
-          id: product.id,
-          inWishlist: await isInWishlist(product.id),
-        }))
-      );
-
-      const favoriteIds = wishlistStatus
-        .filter((item) => item.inWishlist)
-        .map((item) => item.id);
-
-      setFavorites(favoriteIds);
-    };
-
-    if (products.length > 0) loadWishlistStatus();
-  }, [products]);
+  // const { query, updateQuery } = useParsedQuery(productSchema);
 
   const toggleFavorite = async (productId: number) => {
-    setLoadingStates((prev) => ({
-      ...prev,
-      wishlist: { ...prev.wishlist, [productId]: true },
-    }));
-
-    try {
-      const isFav = favorites.includes(productId);
-      if (isFav) {
-        const result = await removeFromWishlist(productId);
-        if (result.success)
-          setFavorites((prev) => prev.filter((id) => id !== productId));
-        else toast.error("Failed to remove from wishlist");
-      } else {
-        const result = await addToWishlist(productId);
-        if (result.success) setFavorites((prev) => [...prev, productId]);
-        else toast.error("Failed to add to wishlist");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Something went wrong");
-    } finally {
-      setLoadingStates((prev) => ({
-        ...prev,
-        wishlist: { ...prev.wishlist, [productId]: false },
-      }));
-    }
+    console.log("Add Favourite.");
   };
 
   const handleAddToCart = async (productId: number) => {
-    setLoadingStates((prev) => ({
-      ...prev,
-      cart: { ...prev.cart, [productId]: true },
-    }));
-
-    try {
-      const result = await addToCart(productId, 1);
-      if (result.success) toast.success("Added to cart");
-      else toast.error("Failed to add to cart");
-    } catch (err) {
-      console.error(err);
-      toast.error("Something went wrong");
-    } finally {
-      setLoadingStates((prev) => ({
-        ...prev,
-        cart: { ...prev.cart, [productId]: false },
-      }));
-    }
+    console.log("Add to cart.");
   };
 
   return products.map((product) => (
@@ -136,20 +60,9 @@ export default function ProductCard({ products }: { products: Product[] }) {
               title="Toggle Favorite"
               type="button"
               onClick={() => toggleFavorite(product.id)}
-              disabled={loadingStates.wishlist[product.id]}
               className="p-2 rounded-full bg-white/90 hover:bg-white shadow-lg transition-all hover:scale-110 disabled:opacity-50"
             >
-              {loadingStates.wishlist[product.id] ? (
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-              ) : (
-                <Heart
-                  className={`h-4 w-4 ${
-                    favorites.includes(product.id)
-                      ? "fill-red-500 text-red-500"
-                      : "text-muted-foreground"
-                  }`}
-                />
-              )}
+              <Heart className="h-4 w-4 disabled:fill-red-500 disabled:text-red-500 text-muted-foreground" />
             </button>
           </div>
 
@@ -263,20 +176,14 @@ export default function ProductCard({ products }: { products: Product[] }) {
             <Button
               size={"sm"}
               className="flex-1 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:cursor-not-allowed"
-              disabled={
-                product.availability === "out-of-stock" ||
-                loadingStates.cart[product.id]
-              }
               onClick={() => handleAddToCart(product.id)}
+              disabled={product.availability === "out-of-stock"}
             >
-              {loadingStates.cart[product.id] ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <ShoppingCart className="h-4 w-4 mr-1" />
-              )}
-              {loadingStates.cart[product.id]
-                ? "Adding..."
-                : product.availability === "in-stock"
+              {/* <Loader2 className="h-4 w-4 mr-2 animate-spin" /> */}
+
+              <ShoppingCart className="h-4 w-4 mr-1" />
+
+              {product.availability === "in-stock"
                 ? "Add to Cart"
                 : "Out of Stock"}
             </Button>

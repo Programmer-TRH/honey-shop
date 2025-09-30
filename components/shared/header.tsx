@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,13 +7,11 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { Menu, Phone, Heart } from "lucide-react";
+import { Menu, Phone, Heart, ShoppingCart } from "lucide-react";
 import { CartDrawer } from "./cart-drawer";
 import { UserMenu } from "./user-menu";
 
 export function Header() {
-  const [isOpen, setIsOpen] = useState(false);
-
   const navigation = [
     { name: "Home", href: "/" },
     { name: "Shop", href: "/shop" },
@@ -73,12 +68,18 @@ export function Header() {
               </Link>
             </Button>
 
-            <CartDrawer />
+            <Button variant="outline" size="sm" className="relative" asChild>
+              <Link href="/cart">
+                <ShoppingCart className="h-4 w-4" />
+              </Link>
+            </Button>
+
+            {/* <CartDrawer /> */}
 
             <UserMenu />
 
             {/* Mobile Menu */}
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <Sheet>
               <SheetTrigger asChild className="md:hidden">
                 <Button variant="ghost" size="sm">
                   <Menu className="h-5 w-5" />
@@ -101,7 +102,6 @@ export function Header() {
                       key={item.name}
                       href={item.href}
                       className="text-lg font-medium text-foreground hover:text-primary transition-colors"
-                      onClick={() => setIsOpen(false)}
                     >
                       {item.name}
                     </Link>
@@ -110,7 +110,6 @@ export function Header() {
                     <Link
                       href="/wishlist"
                       className="flex items-center space-x-2 text-lg font-medium text-foreground hover:text-primary transition-colors"
-                      onClick={() => setIsOpen(false)}
                     >
                       <Heart className="h-4 w-4" />
                       <span>Wishlist (3)</span>
@@ -118,7 +117,6 @@ export function Header() {
                     <Link
                       href="/cart"
                       className="flex items-center space-x-2 text-lg font-medium text-foreground hover:text-primary transition-colors"
-                      onClick={() => setIsOpen(false)}
                     >
                       <CartDrawer />
                       <span>View Cart</span>

@@ -11,9 +11,10 @@ export default async function Shop({
   const params = await Promise.resolve(searchParams);
   const queryString = buildQueryString(params);
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const res = await fetch(`${baseUrl}/api/products?${queryString.toString()}`);
+  const res = await fetch(
+    `${baseUrl}/api/custom/products?${queryString.toString()}`
+  );
   const productData = await res.json();
-  console.log("Product Data:", productData);
 
   return (
     <>

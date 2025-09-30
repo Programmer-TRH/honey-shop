@@ -8,7 +8,9 @@ import Link from "next/link";
 import { registerSchema } from "@/lib/shcema/zodSchema";
 import { useRouter } from "next/navigation";
 import { LoaderPinwheel, ServerCog } from "lucide-react";
+import { registrationAction } from "@/actions/register-action";
 import PasswordInput from "../shared/password-input";
+import { toast } from "@/hooks/use-toast";
 
 export default function Register() {
   const {
@@ -16,38 +18,29 @@ export default function Register() {
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
-    setError,
   } = useForm({
     resolver: zodResolver(registerSchema),
     mode: "onChange",
   });
   const router = useRouter();
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: any) => {
     const result = await registrationAction(data);
+    console.log("Result:", result);
 
-    if (result?.success && result?.message) {
-      toast.success(result.message || "✅ Registration successful!");
-    }
-
-    if (result?.success) {
-      router.replace(result.redirectTo || "/dashboard");
-    } else {
-      // 🔁 Hydrate server-side errors into RHF
-      Object.entries(result.errors).forEach(([field, messages]) => {
-        if (messages && messages.length > 0) {
-          setError(field, {
-            type: "server",
-            message: messages[0], // You can show all messages if needed
-          });
-        }
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: result.message || "Registration Successfull.",
+        variant: "default",
       });
-
-      toast.error(
-        result?.errors?.general?.[0] ||
-          result.errors?.email?.[0] ||
-          "❌ Registration failed"
-      );
+      router.replace("/dashboard");
+    } else {
+      toast({
+        title: "Error",
+        description: result.message || "Registration failed",
+        variant: "destructive",
+      });
     }
   };
 
@@ -67,6 +60,7 @@ export default function Register() {
             </h1>
             <p className="text-sm">Welcome! Create an account to get started</p>
           </div>
+
           <hr className="my-4 border-dashed" />
           <div className="space-y-5">
             <div className="grid grid-cols-2 gap-3">
@@ -77,7 +71,7 @@ export default function Register() {
                 <Input {...register("first_name")} id="firstname" />
                 {errors.first_name && (
                   <p className="text-red-500 text-sm">
-                    {errors.first_name.message}
+                    {errors?.first_name?.message as string}
                   </p>
                 )}
               </div>
@@ -89,7 +83,7 @@ export default function Register() {
                 <Input {...register("last_name")} id="lastname" />
                 {errors.last_name && (
                   <p className="text-red-500 text-sm">
-                    {errors.last_name.message}
+                    {errors.last_name.message as string}
                   </p>
                 )}
               </div>
@@ -101,7 +95,9 @@ export default function Register() {
               </Label>
               <Input {...register("email")} id="email" />
               {errors.email && (
-                <p className="text-red-500 text-sm">{errors.email.message}</p>
+                <p className="text-red-500 text-sm">
+                  {errors.email.message as string}
+                </p>
               )}
             </div>
             <Controller

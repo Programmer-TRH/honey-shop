@@ -1,22 +1,62 @@
 "use server";
 
 import { registerSchema } from "@/lib/shcema/zodSchema";
+import { createToken } from "@/lib/session";
+import { createUser } from "@/services/auth-service";
+import { ActionResponse } from "@/types/action-response";
+import z from "zod";
+import { AppError } from "@/types/errors";
 
-export async function registerAction(prevState: any, formData: FormData) {
-  const data = {
-    name: formData.get("name"),
-    email: formData.get("email"),
-    password: formData.get("password"),
-  };
+export async function registrationAction(
+  formData: FormData
+): Promise<ActionResponse> {
+  const parsed = registerSchema.safeParse(formData);
 
-  // ✅ Validate again on server
-  const parsed = registerSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: "Invalid input" };
+    const errors = z.flattenError(parsed.error);
+    console.log("Errors:", errors);
+    return {
+      success: false,
+      message: "Validation failed. Please check your input.",
+      code: "VALIDATION_FAILED",
+      data: errors,
+    };
   }
 
-  // 👉 Save to DB, hash password, etc.
-  // await db.user.create(...)
+  const { first_name, last_name, email, password } = parsed.data;
 
-  return { success: true, error: null };
+  try {
+    const insertedUser = await createUser({
+      first_name,
+      last_name,
+      email,
+      password,
+    });
+    console.log("Inserted User:", insertedUser);
+
+    const token = await createToken(insertedUser.userId, insertedUser.role);
+
+    console.log("Token Creating:", token);
+
+    return {
+      success: true,
+      message: "Registration successful",
+    };
+  } catch (error: any) {
+    console.log("Error:", error);
+    if (error instanceof AppError) {
+      return {
+        success: false,
+        message: error.message,
+        code: error.code,
+      };
+    }
+    return {
+      success: false,
+      message:
+        error.message ||
+        "An unexpected error occurred. Please try again later.",
+      code: error.code || "UNKNOWN_ERROR",
+    };
+  }
 }
