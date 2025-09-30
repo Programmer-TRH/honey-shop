@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search, TrendingUp, X } from "lucide-react"
-import Link from "next/link"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, TrendingUp, X } from "lucide-react";
+import Link from "next/link";
 
 const popularPosts = [
   {
@@ -24,41 +24,19 @@ const popularPosts = [
     title: "How to Identify Pure vs. Adulterated Honey",
     views: "1.2k views",
   },
-]
+];
 
 const categories = [
   { name: "Health", count: 12 },
   { name: "Sunnah", count: 8 },
   { name: "Recipes", count: 6 },
   { name: "Beekeeping", count: 4 },
-]
+];
 
-interface BlogSidebarProps {
-  onSearchChange?: (query: string) => void
-  onCategoryChange?: (category: string) => void
-  selectedCategory?: string
-}
+export function BlogSidebar() {
+  const handleCategoryClick = (categoryName: string) => {};
 
-export function BlogSidebar({ onSearchChange, onCategoryChange, selectedCategory }: BlogSidebarProps) {
-  const [searchQuery, setSearchQuery] = useState("")
-
-  useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      onSearchChange?.(searchQuery)
-    }, 300)
-
-    return () => clearTimeout(debounceTimer)
-  }, [searchQuery, onSearchChange])
-
-  const handleCategoryClick = (categoryName: string) => {
-    const newCategory = selectedCategory === categoryName ? "" : categoryName
-    onCategoryChange?.(newCategory)
-  }
-
-  const clearSearch = () => {
-    setSearchQuery("")
-    onSearchChange?.("")
-  }
+  const clearSearch = () => {};
 
   return (
     <div className="space-y-6">
@@ -100,20 +78,31 @@ export function BlogSidebar({ onSearchChange, onCategoryChange, selectedCategory
               key={category.name}
               onClick={() => handleCategoryClick(category.name)}
               className={`flex items-center justify-between w-full text-left hover:text-primary transition-colors ${
-                selectedCategory === category.name ? "text-primary font-medium" : ""
+                selectedCategory === category.name
+                  ? "text-primary font-medium"
+                  : ""
               }`}
             >
               <span className="text-sm">{category.name}</span>
               <Badge
                 variant="secondary"
-                className={`text-xs ${selectedCategory === category.name ? "bg-primary/10 text-primary" : "bg-muted"}`}
+                className={`text-xs ${
+                  selectedCategory === category.name
+                    ? "bg-primary/10 text-primary"
+                    : "bg-muted"
+                }`}
               >
                 {category.count}
               </Badge>
             </button>
           ))}
           {selectedCategory && (
-            <Button variant="ghost" size="sm" onClick={() => onCategoryChange?.("")} className="w-full text-xs">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onCategoryChange?.("")}
+              className="w-full text-xs"
+            >
               Clear Filter
             </Button>
           )}
@@ -131,11 +120,18 @@ export function BlogSidebar({ onSearchChange, onCategoryChange, selectedCategory
         <CardContent className="space-y-4">
           {popularPosts.map((post) => (
             <div key={post.id} className="space-y-2">
-              <Link href={`/blog/${post.id}`} className="block hover:text-primary transition-colors">
-                <h4 className="font-medium text-sm leading-tight line-clamp-2">{post.title}</h4>
+              <Link
+                href={`/blog/${post.id}`}
+                className="block hover:text-primary transition-colors"
+              >
+                <h4 className="font-medium text-sm leading-tight line-clamp-2">
+                  {post.title}
+                </h4>
               </Link>
               <p className="text-xs text-muted-foreground">{post.views}</p>
-              {post.id !== popularPosts[popularPosts.length - 1].id && <hr className="border-border/50" />}
+              {post.id !== popularPosts[popularPosts.length - 1].id && (
+                <hr className="border-border/50" />
+              )}
             </div>
           ))}
         </CardContent>
@@ -148,7 +144,8 @@ export function BlogSidebar({ onSearchChange, onCategoryChange, selectedCategory
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-4">
-            Get the latest articles about honey health benefits and wellness tips.
+            Get the latest articles about honey health benefits and wellness
+            tips.
           </p>
           <div className="space-y-2">
             <Input placeholder="Your email" />
@@ -159,5 +156,5 @@ export function BlogSidebar({ onSearchChange, onCategoryChange, selectedCategory
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

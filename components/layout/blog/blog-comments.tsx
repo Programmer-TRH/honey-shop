@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThumbsUp, MessageCircle, User } from "lucide-react"
-import { BlogCommentForm } from "@/components/blog-comment-form"
-import { getComments, markCommentHelpful, type BlogComment } from "@/lib/actions/comment-actions"
+
+import { getComments, markCommentHelpful, type BlogComment } from "@/actions/comment-actions"
+import { BlogCommentForm } from "./blog-comment-form"
 
 interface BlogCommentsProps {
   blogPostId: number

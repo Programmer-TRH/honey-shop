@@ -1,43 +1,52 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { MessageCircle } from "lucide-react"
-import { submitComment } from "@/lib/actions/comment-actions"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { MessageCircle } from "lucide-react";
+import { submitComment } from "@/actions/comment-actions";
 
 interface BlogCommentFormProps {
-  blogPostId: number
-  onCommentSubmitted?: () => void
+  blogPostId: number;
+  onCommentSubmitted?: () => void;
 }
 
-export function BlogCommentForm({ blogPostId, onCommentSubmitted }: BlogCommentFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+export function BlogCommentForm({
+  blogPostId,
+  onCommentSubmitted,
+}: BlogCommentFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   const handleSubmit = async (formData: FormData) => {
-    setIsSubmitting(true)
-    setMessage(null)
+    setIsSubmitting(true);
+    setMessage(null);
 
-    formData.append("blogPostId", blogPostId.toString())
+    formData.append("blogPostId", blogPostId.toString());
 
-    const result = await submitComment(formData)
+    const result = await submitComment(formData);
 
     if (result.success) {
-      setMessage({ type: "success", text: "Comment submitted successfully!" })
+      setMessage({ type: "success", text: "Comment submitted successfully!" });
       // Reset form
-      const form = document.getElementById("comment-form") as HTMLFormElement
-      form?.reset()
-      onCommentSubmitted?.()
+      const form = document.getElementById("comment-form") as HTMLFormElement;
+      form?.reset();
+      onCommentSubmitted?.();
     } else {
-      setMessage({ type: "error", text: result.error || "Failed to submit comment" })
+      setMessage({
+        type: "error",
+        text: result.error || "Failed to submit comment",
+      });
     }
 
-    setIsSubmitting(false)
-  }
+    setIsSubmitting(false);
+  };
 
   return (
     <Card className="border-border/50">
@@ -51,15 +60,27 @@ export function BlogCommentForm({ blogPostId, onCommentSubmitted }: BlogCommentF
         <form id="comment-form" action={handleSubmit} className="space-y-4">
           {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="userName" className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor="userName"
+              className="text-sm font-medium text-foreground"
+            >
               Name *
             </Label>
-            <Input id="userName" name="userName" placeholder="Your full name" required className="bg-background" />
+            <Input
+              id="userName"
+              name="userName"
+              placeholder="Your full name"
+              required
+              className="bg-background"
+            />
           </div>
 
           {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="userEmail" className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor="userEmail"
+              className="text-sm font-medium text-foreground"
+            >
               Email *
             </Label>
             <Input
@@ -70,12 +91,17 @@ export function BlogCommentForm({ blogPostId, onCommentSubmitted }: BlogCommentF
               required
               className="bg-background"
             />
-            <p className="text-xs text-muted-foreground">Your email will not be published</p>
+            <p className="text-xs text-muted-foreground">
+              Your email will not be published
+            </p>
           </div>
 
           {/* Comment */}
           <div className="space-y-2">
-            <Label htmlFor="comment" className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor="comment"
+              className="text-sm font-medium text-foreground"
+            >
               Your Comment *
             </Label>
             <Textarea
@@ -112,5 +138,5 @@ export function BlogCommentForm({ blogPostId, onCommentSubmitted }: BlogCommentF
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }
