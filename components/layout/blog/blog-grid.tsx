@@ -17,9 +17,7 @@ interface BlogProps {
 }
 
 export async function BlogGrid({ blogs, meta }: BlogProps) {
-  console.log("Blogs:", blogs);
   const featuredBlogs = blogs.filter((blog) => blog.featured === true);
-
   const regularBlogs = blogs.filter((blog) => !blog.featured === true);
 
   if (blogs.length === 0) {

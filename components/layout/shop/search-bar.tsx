@@ -6,7 +6,7 @@ import { useParsedQuery } from "@/hooks/useParsedQuery";
 import { useDebounceCallback } from "@/hooks/use-debounce";
 import { searchSchema } from "@/lib/shcema/search-schema";
 
-export function SearchBar() {
+export function SearchBar({ placeholder }: { placeholder: string }) {
   const { query, updateQuery } = useParsedQuery(searchSchema);
   const [inputValue, setInputValue] = useState(query.q || "");
 
@@ -50,7 +50,7 @@ export function SearchBar() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Search honey varieties, types..."
+          placeholder={placeholder}
           value={inputValue}
           onChange={handleInputChange}
           className="pl-10 pr-10 py-3 text-base border-2 focus:border-primary transition-colors duration-150"

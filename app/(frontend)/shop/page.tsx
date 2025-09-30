@@ -27,7 +27,7 @@ export default function ShopPage({
         </p>
 
         <StarCount className="justify-center mb-8" />
-        <SearchBar />
+        <SearchBar placeholder="Search product..." />
       </div>
       <div className="flex flex-col lg:flex-row gap-8">
         <Suspense

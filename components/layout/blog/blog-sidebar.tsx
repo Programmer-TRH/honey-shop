@@ -1,12 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, TrendingUp, X } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import Link from "next/link";
+import { useParsedQuery } from "@/hooks/useParsedQuery";
+import { blogSchema } from "@/lib/shcema/blog-schema";
+import { SearchBar } from "../shop/search-bar";
+
+interface FilterValue {
+  value: string;
+  count: number;
+}
+
+interface BlogFiltersProps {
+  filters: {
+    category: FilterValue[];
+  };
+}
 
 const popularPosts = [
   {
@@ -26,17 +39,34 @@ const popularPosts = [
   },
 ];
 
-const categories = [
-  { name: "Health", count: 12 },
-  { name: "Sunnah", count: 8 },
-  { name: "Recipes", count: 6 },
-  { name: "Beekeeping", count: 4 },
-];
+export function BlogSidebar({ filters }: BlogFiltersProps) {
+  const { query, updateQuery } = useParsedQuery(blogSchema);
+  const categories = filters.category;
 
-export function BlogSidebar() {
-  const handleCategoryClick = (categoryName: string) => {};
+  const selectedCategory: string[] = Array.isArray(query.category)
+    ? query.category
+    : query.category
+    ? query.category.split(",")
+    : [];
 
-  const clearSearch = () => {};
+  const handleCategoryChange = (category: string) => {
+    const isSelected = selectedCategory.includes(category);
+    const next = isSelected
+      ? selectedCategory.filter((c) => c !== category) // remove
+      : [...selectedCategory, category]; // add
+
+    updateQuery({
+      category: next.length ? next.join(",") : null,
+      page: "1",
+    });
+  };
+
+  const clearFilters = () => {
+    updateQuery({
+      category: null,
+      page: "1",
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -46,24 +76,7 @@ export function BlogSidebar() {
           <CardTitle className="text-base">Search Articles</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="relative">
-            <Input
-              placeholder="Search articles, tags..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pr-10"
-            />
-            {searchQuery ? (
-              <button
-                onClick={clearSearch}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted rounded-full"
-              >
-                <X className="h-4 w-4 text-muted-foreground" />
-              </button>
-            ) : (
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            )}
-          </div>
+          <SearchBar placeholder="Search articles..." />
         </CardContent>
       </Card>
 
@@ -73,34 +86,33 @@ export function BlogSidebar() {
           <CardTitle className="text-base">Categories</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {categories.map((category) => (
-            <button
-              key={category.name}
-              onClick={() => handleCategoryClick(category.name)}
-              className={`flex items-center justify-between w-full text-left hover:text-primary transition-colors ${
-                selectedCategory === category.name
-                  ? "text-primary font-medium"
-                  : ""
-              }`}
-            >
-              <span className="text-sm">{category.name}</span>
-              <Badge
-                variant="secondary"
-                className={`text-xs ${
-                  selectedCategory === category.name
-                    ? "bg-primary/10 text-primary"
-                    : "bg-muted"
+          {categories.map((category) => {
+            const isActive = selectedCategory.includes(category.value);
+            return (
+              <button
+                key={category.value}
+                onClick={() => handleCategoryChange(category.value)}
+                className={`flex items-center justify-between w-full text-left hover:text-primary transition-colors ${
+                  isActive ? "text-primary font-medium" : ""
                 }`}
               >
-                {category.count}
-              </Badge>
-            </button>
-          ))}
-          {selectedCategory && (
+                <span className="text-sm">{category.value}</span>
+                <Badge
+                  variant="custom"
+                  className={`text-xs ${
+                    isActive ? "bg-primary/10 text-primary" : "text-foreground"
+                  }`}
+                >
+                  {category.count}
+                </Badge>
+              </button>
+            );
+          })}
+          {selectedCategory.length > 0 && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onCategoryChange?.("")}
+              onClick={clearFilters}
               className="w-full text-xs"
             >
               Clear Filter
