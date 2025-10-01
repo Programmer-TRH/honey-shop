@@ -16,11 +16,11 @@ interface BlogProps {
   meta: Meta;
 }
 
-export async function BlogGrid({ blogs, meta }: BlogProps) {
-  const featuredBlogs = blogs.filter((blog) => blog.featured === true);
-  const regularBlogs = blogs.filter((blog) => !blog.featured === true);
+export function BlogGrid({ blogs, meta }: BlogProps) {
+  const featuredBlogs = blogs?.filter((blog) => blog.featured === true);
+  const regularBlogs = blogs?.filter((blog) => !blog.featured === true);
 
-  if (blogs.length === 0) {
+  if (blogs?.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="text-6xl mb-4">📝</div>
@@ -40,12 +40,12 @@ export async function BlogGrid({ blogs, meta }: BlogProps) {
 
       <div className="flex items-center justify-between">
         <p className="text-muted-foreground">
-          Showing {blogs.length} of {meta.total} articles
+          Showing {blogs?.length} of {meta?.total} articles
         </p>
       </div>
 
       {/* Featured Post */}
-      {featuredBlogs.map((featuredBlog) => (
+      {featuredBlogs?.map((featuredBlog) => (
         <Card
           key={featuredBlog.id}
           className="overflow-hidden border-border/50 hover:shadow-lg transition-shadow"
@@ -102,7 +102,7 @@ export async function BlogGrid({ blogs, meta }: BlogProps) {
 
       {/* Regular Posts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {regularBlogs.map((post) => (
+        {regularBlogs?.map((post) => (
           <Card
             key={post.id}
             className="group overflow-hidden border-border/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"

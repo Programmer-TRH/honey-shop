@@ -5,10 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TrendingUp } from "lucide-react";
-import Link from "next/link";
 import { useParsedQuery } from "@/hooks/useParsedQuery";
 import { blogSchema } from "@/lib/shcema/blog-schema";
 import { SearchBar } from "../shop/search-bar";
+import Link from "next/link";
 
 interface FilterValue {
   value: string;
@@ -41,7 +41,7 @@ const popularPosts = [
 
 export function BlogSidebar({ filters }: BlogFiltersProps) {
   const { query, updateQuery } = useParsedQuery(blogSchema);
-  const categories = filters.category;
+  const categories = filters?.category;
 
   const selectedCategory: string[] = Array.isArray(query.category)
     ? query.category
@@ -86,7 +86,7 @@ export function BlogSidebar({ filters }: BlogFiltersProps) {
           <CardTitle className="text-base">Categories</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {categories.map((category) => {
+          {categories?.map((category) => {
             const isActive = selectedCategory.includes(category.value);
             return (
               <button
