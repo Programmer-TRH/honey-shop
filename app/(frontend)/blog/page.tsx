@@ -1,27 +1,18 @@
 import BlogHero from "@/components/layout/blog/blog-hero";
-import Blog from "@/components/layout/blog/blog";
+import BlogMain from "@/components/layout/blog/blog-main";
+import LoadingSkeleton from "@/components/skeleton/loading-skeleton";
+import { Suspense } from "react";
 
-export const revalidate = 3600;
-
-export default async function BlogPage() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-
-  const res = await fetch(`${baseUrl}/api/custom/blogs?page=1&limit=10}`, {
-    next: {
-      tags: ["blogs"],
-      revalidate: 3600,
-    },
-  });
-
-  const blogData = await res.json();
-
+export default function BlogPage() {
   return (
     <>
       <BlogHero />
       <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col-reverse lg:flex-row gap-8">
-            <Blog initialBlogs={blogData} />
+            <Suspense fallback={<LoadingSkeleton />}>
+              <BlogMain />
+            </Suspense>
           </div>
         </div>
       </section>

@@ -74,6 +74,23 @@ export function ShopFilters({ filters }: FiltersProps) {
     to: query.maxPrice ? Number(query.maxPrice) : MAX_PRICE,
   });
 
+  // 1️⃣ At the top level of your component
+  useDebounceCallback(
+    ({ from, to }: { from: number; to: number }) => {
+      const next: Record<string, string | null> = { page: "1" };
+
+      if (from !== MIN_PRICE) next.minPrice = from.toString();
+      else next.minPrice = null;
+
+      if (to !== MAX_PRICE) next.maxPrice = to.toString();
+      else next.maxPrice = null;
+
+      updateQuery(next);
+    },
+    priceRange,
+    500
+  );
+
   const rating = query.rating ? Number(query.rating) : null;
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
 
@@ -127,23 +144,6 @@ export function ShopFilters({ filters }: FiltersProps) {
       page: "1",
     });
   };
-
-  // 1️⃣ At the top level of your component
-  useDebounceCallback(
-    ({ from, to }: { from: number; to: number }) => {
-      const next: Record<string, string | null> = { page: "1" };
-
-      if (from !== MIN_PRICE) next.minPrice = from.toString();
-      else next.minPrice = null;
-
-      if (to !== MAX_PRICE) next.maxPrice = to.toString();
-      else next.maxPrice = null;
-
-      updateQuery(next);
-    },
-    priceRange,
-    500
-  );
 
   // Handler to update local state only
   const handlePriceChange = (from: number, to: number) => {
