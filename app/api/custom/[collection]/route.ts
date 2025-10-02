@@ -12,7 +12,7 @@ export async function GET(
     const searchParams = req.nextUrl.searchParams;
 
     const query = parseSearchParams(searchParams, productSchema);
-    const result = await getData(query, collection);
+    const result = await getData(collection, query);
 
     return NextResponse.json({
       success: true,

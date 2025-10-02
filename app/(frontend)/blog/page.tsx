@@ -12,7 +12,6 @@ export default async function BlogPage() {
       revalidate: 3600,
     },
   });
-  console.log("Api calling from server:", res);
 
   const blogData = await res.json();
 

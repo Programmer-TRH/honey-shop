@@ -12,8 +12,8 @@ interface Meta {
 }
 
 interface BlogProps {
-  blogs: BlogPost[];
-  meta: Meta;
+  blogs: BlogPost[] | undefined;
+  meta: Meta | undefined;
 }
 
 export function BlogGrid({ blogs, meta }: BlogProps) {

@@ -11,21 +11,24 @@ import {
   BookOpen,
 } from "lucide-react";
 import Link from "next/link";
+import { BlogComments } from "@/components/layout/blog/blog-comments";
+import Image from "next/image";
 import {
   getBlogPost,
-  getRelatedBlogPosts,
   getBlogPosts,
-} from "@/actions/data-actions";
-import { BlogComments } from "@/components/layout/blog/blog-comments";
+  getRelatedBlogPosts,
+} from "@/services/blog-service";
 
 export const revalidate = 60;
 
 // Generate static params for all blog posts
 export async function generateStaticParams() {
   const blogs = await getBlogPosts();
-  return blogs.map((blog) => ({
+  const blogParams = blogs.data.map((blog) => ({
     blogId: blog.id.toString(),
   }));
+
+  return blogParams;
 }
 
 export default async function BlogPostPage({
@@ -35,12 +38,15 @@ export default async function BlogPostPage({
 }) {
   const resolvedParams = params instanceof Promise ? await params : params;
   const { blogId } = resolvedParams;
+  const post = await getBlogPost({ blogId });
+  console.log("Post:", post);
 
-  const post = await getBlogPost(blogId);
-  const relatedPosts = await getRelatedBlogPosts(post.id);
+  const relatedPosts = await getRelatedBlogPosts({
+    currentBlog: post ?? "",
+  });
 
   const formatContent = (content: string) => {
-    return content.split("\n\n").map((paragraph, index) => {
+    return content?.split("\n\n").map((paragraph, index) => {
       if (paragraph.startsWith("## ")) {
         return (
           <h2
@@ -76,9 +82,9 @@ export default async function BlogPostPage({
         <header className="space-y-6">
           <div className="flex items-center space-x-2">
             <Badge variant="secondary" className="bg-primary/10 text-primary">
-              {post.category}
+              {post?.category}
             </Badge>
-            {post.featured && (
+            {post?.featured && (
               <Badge className="bg-primary text-primary-foreground">
                 Featured
               </Badge>
@@ -86,25 +92,25 @@ export default async function BlogPostPage({
           </div>
 
           <h1 className="font-serif text-3xl md:text-4xl font-bold text-foreground text-balance">
-            {post.title}
+            {post?.title}
           </h1>
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center space-x-1">
               <User className="h-4 w-4" />
-              <span>{post.author}</span>
+              <span>{post?.author}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Calendar className="h-4 w-4" />
-              <span>{post.date}</span>
+              <span>{post?.date}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Clock className="h-4 w-4" />
-              <span>{post.readTime}</span>
+              <span>{post?.readTime}</span>
             </div>
             <div className="flex items-center space-x-1">
               <BookOpen className="h-4 w-4" />
-              <span>{post.content.split(" ").length} words</span>
+              <span>{post?.content.split(" ").length} words</span>
             </div>
           </div>
 
@@ -122,12 +128,14 @@ export default async function BlogPostPage({
 
         {/* Featured Image */}
         <div className="relative">
-          <img
+          <Image
+            width={800}
+            height={400}
+            alt={post?.title || "Blog featured image"}
             src={
-              post.image ||
-              `/placeholder.svg?height=400&width=800&query=${post.title}`
+              post?.image ||
+              `/placeholder.svg?height=400&width=800&query=${post?.title}`
             }
-            alt={post.title}
             className="w-full h-64 md:h-96 object-cover rounded-lg"
           />
         </div>
@@ -135,7 +143,7 @@ export default async function BlogPostPage({
         {/* Article Content */}
         <div className="prose prose-lg max-w-none">
           <div className="text-lg leading-relaxed space-y-4">
-            {formatContent(post.content)}
+            {formatContent(post?.content ?? "")}
           </div>
         </div>
 
@@ -144,7 +152,7 @@ export default async function BlogPostPage({
           <span className="text-sm font-medium text-muted-foreground">
             Tags:
           </span>
-          {post.tags.map((tag) => (
+          {post?.tags.map((tag: any) => (
             <Badge key={tag} variant="outline" className="text-xs">
               #{tag}
             </Badge>
@@ -160,7 +168,7 @@ export default async function BlogPostPage({
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-foreground mb-2">
-                  {post.author}
+                  {post?.author}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   Expert in natural health and wellness, specializing in the
@@ -174,7 +182,11 @@ export default async function BlogPostPage({
 
       {/* Blog Comments Section */}
       <div className="mt-12">
-        <BlogComments blogPostId={post.id} />
+        <BlogComments
+          blogPostId={
+            typeof post?.id === "string" ? parseInt(post.id, 10) : post?.id ?? 0
+          }
+        />
       </div>
 
       {/* Related Posts */}
