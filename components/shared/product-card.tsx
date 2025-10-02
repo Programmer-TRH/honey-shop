@@ -30,10 +30,11 @@ export default function ProductCard({ products }: { products: Product[] }) {
       <div className="relative">
         <div className="aspect-square bg-gradient-to-br from-primary/5 to-orange-50 p-6 flex items-center justify-center relative overflow-hidden group">
           {/* Product Image */}
+
           <Image
             width={400}
             height={400}
-            src={product.images?.[0] || PlaceholderImage}
+            src={product.images[0] || PlaceholderImage}
             alt={product.name}
             className="relative z-10 max-w-full h-auto transition-transform duration-500 group-hover:scale-110"
           />

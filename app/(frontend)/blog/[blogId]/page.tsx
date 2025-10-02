@@ -42,7 +42,7 @@ export default async function BlogPostPage({
   console.log("Post:", post);
 
   const relatedPosts = await getRelatedBlogPosts({
-    currentBlog: post ?? "",
+    currentBlog: post!,
   });
 
   const formatContent = (content: string) => {

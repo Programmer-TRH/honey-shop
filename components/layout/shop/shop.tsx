@@ -1,50 +1,65 @@
-import { buildQueryString } from "@/lib/query/buildQueryString";
+"use client";
 import { ShopFilters } from "./shop-filters";
 import { ProductGrid } from "./product-grid";
-import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCache } from "@/hooks/useCache";
+import { Product } from "@/lib/mock-data";
+import LoadingSkeleton from "@/components/skeleton/loading-skeleton";
 
-export default async function Shop({
-  searchParams,
+interface Meta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+interface FilterValue {
+  value: string;
+  count: number;
+}
+
+interface ProductProps {
+  data: Product[];
+  meta: Meta;
+  filters: {
+    weight: FilterValue[];
+    availability: FilterValue[];
+    type: FilterValue[];
+    badge: FilterValue[];
+    price: FilterValue[];
+  };
+}
+
+export default function Shop({
+  initialProducts,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  initialProducts: ProductProps;
 }) {
-  const params = await Promise.resolve(searchParams);
-  const queryString = buildQueryString(params);
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const res = await fetch(
-    `${baseUrl}/api/custom/products?${queryString.toString()}`
-  );
-  const productData = await res.json();
+  const searchParams = useSearchParams();
+  const query = searchParams.toString();
+
+  const { data, loading } = useCache({
+    initialData: initialProducts,
+    url: "/api/custom/products",
+    query,
+  });
 
   return (
     <>
       <aside className="lg:w-64 flex-shrink-0">
-        <ShopFilters filters={productData.filters} />
+        <ShopFilters filters={data?.filters!} />
       </aside>
       <div className="flex-1">
-        <Suspense
-          fallback={
-            <div className="flex flex-col items-center justify-center h-64 space-y-4 animate-pulse w-full">
-              {/* Spinner Circle */}
-              <div className="w-10 h-10 border-4 border-t-primary border-gray-200 rounded-full animate-spin"></div>
-
-              {/* Loading text */}
-              <p className="text-gray-500 font-medium">Fetching products...</p>
-
-              {/* Skeleton bars */}
-              <div className="w-48 h-2 bg-gray-200 rounded"></div>
-              <div className="w-40 h-2 bg-gray-200 rounded"></div>
-              <div className="w-32 h-2 bg-gray-200 rounded"></div>
-            </div>
-          }
-        >
+        {loading ? (
+          <LoadingSkeleton />
+        ) : (
           <ProductGrid
-            products={productData.data}
-            totalProducts={productData.meta.total}
-            currentPage={productData.meta.page}
-            totalPages={productData.meta.totalPages}
+            products={data?.data!}
+            totalProducts={data?.meta.total!}
+            currentPage={data?.meta.page!}
+            totalPages={data?.meta.totalPages!}
           />
-        </Suspense>
+        )}
       </div>
     </>
   );

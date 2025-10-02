@@ -1,4 +1,4 @@
-import { BlogHero } from "@/components/layout/blog/blog-hero";
+import BlogHero from "@/components/layout/blog/blog-hero";
 import Blog from "@/components/layout/blog/blog";
 
 export const revalidate = 3600;

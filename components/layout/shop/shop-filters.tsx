@@ -28,7 +28,7 @@ interface FilterValue {
   count: number;
 }
 
-interface ShopFiltersProps {
+interface FiltersProps {
   filters: {
     weight: FilterValue[];
     availability: FilterValue[];
@@ -38,7 +38,7 @@ interface ShopFiltersProps {
   };
 }
 
-export function ShopFilters({ filters }: ShopFiltersProps) {
+export function ShopFilters({ filters }: FiltersProps) {
   const { query, updateQuery } = useParsedQuery(productSchema);
   const MIN_PRICE =
     filters.price && filters.price.length > 0

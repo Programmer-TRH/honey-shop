@@ -1,5 +1,4 @@
 "use client";
-
 import { BlogGrid } from "@/components/layout/blog/blog-grid";
 import { BlogSidebar } from "@/components/layout/blog/blog-sidebar";
 import { BlogPost } from "@/actions/data-actions";

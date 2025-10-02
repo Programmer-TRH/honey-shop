@@ -3,8 +3,7 @@ import { getData } from "./data-service";
 import { BlogPost } from "@/actions/data-actions";
 
 export async function getBlogPosts() {
-  const collection = "blogs";
-  const result = await getData(collection);
+  const result = await getData("blogs");
   return result;
 }
 
@@ -27,11 +26,10 @@ export async function getRelatedBlogPosts({
   limit?: number;
 }) {
   const data = mockData["blogs"] || [];
-  const blog = data
+  return data
     .filter(
       (blog) =>
         blog.category === currentBlog.category && blog.id !== currentBlog.id
     )
     .slice(0, limit);
-  return blog;
 }
