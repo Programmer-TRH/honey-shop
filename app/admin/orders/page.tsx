@@ -135,7 +135,7 @@ export default function OrderManagementPage() {
   if (isLoading) {
     return (
       <>
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto p-4">
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
             <p className="text-muted-foreground mt-4">Loading orders...</p>
@@ -147,7 +147,7 @@ export default function OrderManagementPage() {
 
   return (
     <>
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto p-4">
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-bold text-foreground mb-2">
@@ -160,7 +160,7 @@ export default function OrderManagementPage() {
 
         {/* Stats Cards */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-[repeat(auto-fit,_minmax(15rem,_1fr))] gap-6 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">

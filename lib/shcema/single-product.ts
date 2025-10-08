@@ -1,0 +1,25 @@
+import { z } from "zod";
+
+export const singleProductSchema = z.object({
+  name: z.string().min(2, "Product name must be at least 2 characters").max(100),
+  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug format"),
+  price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price"),
+  originalPrice: z.string().optional(),
+  stock: z.string().regex(/^\d+$/, "Stock must be a number"),
+  sku: z.string().optional(),
+  barcode: z.string().optional(),
+  type: z.string().optional(),
+  category: z.string().optional(),
+  tags: z.string().optional(),
+  badge: z.string().optional(),
+  availability: z.enum(["in-stock", "out-of-stock"]),
+  images: z.array(z.string()).max(10, "Max 10 images"),
+  descriptionJson: z.string().optional(),
+  sourceOriginJson: z.string().optional(),
+  returnPolicy: z.string().optional(),
+  shippingWeight: z.string().optional(),
+  shippingDimensions: z.string().optional(),
+  availableRegions: z.string().optional(),
+  metaTitle: z.string().max(60).optional(),
+  metaDescription: z.string().max(160).optional(),
+});

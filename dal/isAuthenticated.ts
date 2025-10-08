@@ -1,23 +1,41 @@
+"server only";
 import { cookies } from "next/headers";
-import { decrypt } from "@/lib/session";
+import { decrypt, updateToken } from "@/lib/session";
 import { NextRequest } from "next/server";
 
-export async function isAuthenticated(req?: NextRequest) {
-  const accessToken = req
-    ? req.cookies.get("access_token")?.value
-    : (await cookies()).get("access_token")?.value;
+type AuthResult = {
+  isAuth: boolean;
+  userId: string | null;
+  role: string | null;
+};
 
-  console.log("Access Token from Dal:", accessToken);
+export async function isAuthenticated(req?: NextRequest): Promise<AuthResult> {
+  let cookieStore = req ? req.cookies : await cookies();
 
-  if (!accessToken) return { isAuth: false, userId: null, role: null };
+  let accessToken = cookieStore.get("access_token")?.value;
+  const refreshToken = cookieStore.get("refresh_token")?.value;
+
+  if (!accessToken && !refreshToken) {
+    return { isAuth: false, userId: null, role: null };
+  }
 
   try {
-    const session = await decrypt(accessToken);
-    if (!session?.userId) return { isAuth: false, userId: null, role: null };
+    let session = accessToken ? await decrypt(accessToken) : null;
+
+    // if no access token but refresh token exists → try rotating
+    if (!session && refreshToken) {
+      const refreshed = await updateToken();
+      accessToken = refreshed?.cookies.get("access_token")?.value;
+      session = accessToken ? await decrypt(accessToken) : null;
+    }
+
+    if (!session?.userId) {
+      return { isAuth: false, userId: null, role: null };
+    }
 
     return { isAuth: true, userId: session.userId, role: session.role };
   } catch (err) {
-    console.error("Token invalid:", err);
+    console.error("isAuthenticated error:", err);
     return { isAuth: false, userId: null, role: null };
   }
 }
