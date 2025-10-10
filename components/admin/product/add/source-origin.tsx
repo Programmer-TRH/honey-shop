@@ -12,6 +12,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Info } from "lucide-react";
+import { LexicalEditor } from "@/components/rich-editor/lexical-editor";
 
 interface SourceOriginEditorProps {
   form: UseFormReturn<any>;
@@ -47,23 +48,20 @@ export function SourceOrigin({ form }: SourceOriginEditorProps) {
         </CardHeader>
 
         <CardContent>
-          {/* <LexicalEditor
-            label="Source Origin Details"
-            value={watch("sourceDetailsHtml") || ""}
-            onChange={(html, text) => {
+          <LexicalEditor
+            initialValue={watch("sourceDetailsJson") || ""}
+            onChange={(html, json) => {
               setValue("sourceDetailsHtml", html);
-              setValue("sourceDetailsJson", { html, text });
+              setValue("sourceDetailsJson", json);
             }}
             placeholder={`Write detailed information about the product's source and origin...
-
 You can include:
 • Production region and location
 • Harvest season and timing
 • Beekeepers or suppliers
 • Purity or lab test details
 • Processing or filtration methods`}
-            minHeight="260px"
-          /> */}
+          />
 
           <div className="flex items-start gap-2 mt-4 p-3 bg-blue-50 rounded-md text-sm text-blue-800 border border-blue-100">
             <Info className="h-4 w-4 mt-0.5 shrink-0" />
@@ -92,7 +90,7 @@ You can include:
               <Input
                 id="region"
                 placeholder="e.g., Northern Bangladesh Meadows"
-                {...register("source.region")}
+                {...(register("source.region"), { required: true })}
                 value={region}
                 onChange={(e) => setValue("source.region", e.target.value)}
               />
@@ -122,7 +120,7 @@ You can include:
               <Input
                 id="beekeeper"
                 placeholder="e.g., Abdul Rahman, Local Apiary Cooperative"
-                {...register("source.beekeeper")}
+                {...(register("source.beekeeper"), { required: true })}
                 value={beekeeper}
                 onChange={(e) => setValue("source.beekeeper", e.target.value)}
               />

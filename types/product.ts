@@ -20,7 +20,6 @@ export interface Product {
   barcode?: string;
   category: string;
   badge?: string;
-  status: "active" | "draft";
   featured: boolean;
   shortDescription: string;
   descriptionJson: Record<string, any>;
@@ -30,15 +29,13 @@ export interface Product {
   images: string[];
 
   // Step 3: Pricing & Inventory
-  currency: "BDT";
   costPrice: number;
   price: number;
   originalPrice?: number;
   discountPercentage?: number;
-  availability: "in-stock" | "out-of-stock";
+  availability: "in-stock" | "out-of-stock" | "low-stock";
   stock: number;
-  trackingQuantity: boolean;
-  lowStockThreshold?: number;
+  lowStockThreshold: number;
 
   // Step 4: Source & Origin
   source: SourceInfo;
@@ -51,7 +48,8 @@ export interface Product {
     estimatedDays?: number;
     freeDelivery?: boolean;
   };
-  returnPolicy?: string;
+  returnPolicyJson?: Record<string, any>;
+  returnPolicyHtml?: string;
 
   // Step 6: SEO
   seo: SEOInfo;

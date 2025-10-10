@@ -4,7 +4,6 @@ import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-// import { LexicalEditor } from "./lexical-editor";
 import {
   Card,
   CardHeader,
@@ -13,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useEffect } from "react";
+import { LexicalEditor } from "@/components/rich-editor/lexical-editor";
 
 interface DeliveryPolicyProps {
   form: UseFormReturn<any>;
@@ -21,7 +21,6 @@ interface DeliveryPolicyProps {
 export function DeliveryPolicy({ form }: DeliveryPolicyProps) {
   const { register, watch, setValue } = form;
   const freeDelivery = watch("delivery.freeDelivery");
-  const deliveryCharge = watch("delivery.charge");
 
   // Auto-clear charge if free delivery is enabled
   useEffect(() => {
@@ -73,10 +72,13 @@ export function DeliveryPolicy({ form }: DeliveryPolicyProps) {
             <Input
               id="deliveryCharge"
               type="number"
-              min={0}
               disabled={freeDelivery}
               placeholder="Enter delivery charge, e.g., 80"
-              {...register("delivery.charge", { valueAsNumber: true })}
+              required
+              {...register("delivery.charge", {
+                valueAsNumber: true,
+                required: true,
+              })}
             />
             {freeDelivery && (
               <p className="text-xs text-emerald-600">
@@ -114,16 +116,17 @@ export function DeliveryPolicy({ form }: DeliveryPolicyProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* <LexicalEditor
-            label="Return Policy (Optional)"
-            value={watch("returnPolicy") || ""}
-            onChange={(html, text) => setValue("returnPolicy", html)}
+          <LexicalEditor
+            initialValue={watch("returnPolicy") || ""}
+            onChange={(html, json) => {
+              setValue("returnPolicyHtml", html);
+              setValue("returnPolicyJson", json);
+            }}
             placeholder={`Examples:
 • Returns accepted within 7 days of delivery
 • Product must be unused and in original packaging
 • No returns for perishable items`}
-            minHeight="200px"
-          /> */}
+          />
         </CardContent>
       </Card>
     </div>

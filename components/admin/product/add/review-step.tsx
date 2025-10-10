@@ -7,8 +7,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   Package,
   DollarSign,
@@ -34,18 +32,17 @@ export function ReviewStep({ form }: ReviewStepProps) {
 
   const getCompletionStatus = () => {
     const required = [
-      formData.name,
+      formData.productName,
       formData.shortDescription,
-      formData.fullDescription,
+      formData.descriptionHtml,
       formData.category,
       formData.sku,
       formData.price,
-      formData.currency,
       formData.images?.length > 0,
       formData.seo?.title,
       formData.seo?.description,
-      formData.seo?.slug,
-      formData.status,
+      formData.seo?.url,
+      formData.slug,
     ];
 
     const completed = required.filter(Boolean).length;
@@ -112,10 +109,12 @@ export function ReviewStep({ form }: ReviewStepProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <h4 className="font-medium text-gray-900">Product Name</h4>
-              <p className="text-gray-600">{formData.name || "Not set"}</p>
+              <p className="text-gray-600">
+                {formData.productName || "Not set"}
+              </p>
             </div>
             <div>
               <h4 className="font-medium text-gray-900">SKU</h4>
@@ -124,10 +123,6 @@ export function ReviewStep({ form }: ReviewStepProps) {
             <div>
               <h4 className="font-medium text-gray-900">Category</h4>
               <p className="text-gray-600">{formData.category || "Not set"}</p>
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-900">Brand</h4>
-              <p className="text-gray-600">{formData.brand || "Not set"}</p>
             </div>
           </div>
 
@@ -145,7 +140,7 @@ export function ReviewStep({ form }: ReviewStepProps) {
             <div
               className="text-gray-600 text-sm prose prose-sm max-w-none"
               dangerouslySetInnerHTML={{
-                __html: formData.fullDescription || "Not set",
+                __html: formData.descriptionHtml || "Not set",
               }}
             />
           </div>
@@ -201,22 +196,20 @@ export function ReviewStep({ form }: ReviewStepProps) {
             <div>
               <h4 className="font-medium text-gray-900">Price</h4>
               <p className="text-gray-600">
-                {formData.price
-                  ? `${formData.currency} ${formData.price}`
-                  : "Not set"}
+                {formData.price ? `BDT ${formData.price}` : "Not set"}
               </p>
             </div>
             <div>
-              <h4 className="font-medium text-gray-900">Compare At Price</h4>
+              <h4 className="font-medium text-gray-900">Original Price</h4>
               <p className="text-gray-600">
-                {formData.compareAtPrice
-                  ? `${formData.currency} ${formData.compareAtPrice}`
+                {formData.originalPrice
+                  ? `BDT ${formData.originalPrice}`
                   : "None"}
               </p>
             </div>
             <div>
               <h4 className="font-medium text-gray-900">Currency</h4>
-              <p className="text-gray-600">{formData.currency || "Not set"}</p>
+              <p className="text-gray-600">BDT</p>
             </div>
           </div>
         </CardContent>
@@ -233,40 +226,12 @@ export function ReviewStep({ form }: ReviewStepProps) {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-medium text-gray-900">Stock Tracking</h4>
-              <p className="text-gray-600">
-                {formData.trackQuantity
-                  ? `${formData.stock || 0} units`
-                  : "Not tracked"}
-              </p>
+              <h4 className="font-medium text-gray-900">Stock Count</h4>
+              <p className="text-gray-600">{formData.stock}</p>
             </div>
             <div>
-              <h4 className="font-medium text-gray-900">Status</h4>
-              <Badge
-                variant={formData.status === "active" ? "default" : "secondary"}
-              >
-                {formData.status || "Not set"}
-              </Badge>
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-900">Physical Product</h4>
-              <p className="text-gray-600">
-                {formData.physicalProduct ? "Yes" : "No"}
-              </p>
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-900">Visibility</h4>
-              <Badge variant="outline">
-                {formData.visibility === "public" ? (
-                  <>
-                    <Eye className="h-3 w-3 mr-1" /> Public
-                  </>
-                ) : (
-                  <>
-                    <EyeOff className="h-3 w-3 mr-1" /> Private
-                  </>
-                )}
-              </Badge>
+              <h4 className="font-medium text-gray-900">Low Stock Count</h4>
+              <p className="text-gray-600">{formData.lowStockThreshold}</p>
             </div>
           </div>
         </CardContent>
@@ -293,7 +258,7 @@ export function ReviewStep({ form }: ReviewStepProps) {
           </div>
           <div>
             <h4 className="font-medium text-gray-900">URL Slug</h4>
-            <p className="text-gray-600">{formData.seo?.slug || "Not set"}</p>
+            <p className="text-gray-600">{formData.seo?.url || "Not set"}</p>
           </div>
           {formData.seo?.keywords && formData.seo.keywords.length > 0 && (
             <div>
@@ -359,36 +324,46 @@ export function ReviewStep({ form }: ReviewStepProps) {
       </Card>
 
       {/* Shipping Information */}
-      {formData.physicalProduct && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center space-x-2">
-              <Settings className="h-4 w-4" />
-              <span>Shipping Information</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-medium text-gray-900">Weight</h4>
-                <p className="text-gray-600">
-                  {formData.weight ? `${formData.weight}g` : "Not set"}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-medium text-gray-900">Dimensions</h4>
-                <p className="text-gray-600">
-                  {formData.dimensions?.length &&
-                  formData.dimensions?.width &&
-                  formData.dimensions?.height
-                    ? `${formData.dimensions.length} × ${formData.dimensions.width} × ${formData.dimensions.height} cm`
-                    : "Not set"}
-                </p>
-              </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center space-x-2">
+            <Settings className="h-4 w-4" />
+            <span>Shipping Information</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+            <div>
+              <h4 className="font-medium text-gray-900">Delivery Charge</h4>
+              <p className="text-gray-600">
+                {formData.delivery.charge
+                  ? `BDT ${formData.delivery.charge}`
+                  : "Not set"}
+              </p>
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <div>
+              <h4 className="font-medium text-gray-900">
+                Delivery Estimated Days
+              </h4>
+              <p className="text-gray-600">
+                {formData.delivery.estimatedDays
+                  ? formData.delivery.estimatedDays
+                  : "Not set"}
+              </p>
+            </div>
+          </div>
+          <div>
+            <h4 className="font-medium text-gray-900">Return Policy</h4>
+            <div
+              className="text-gray-600 text-sm prose prose-sm max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: formData.returnPolicyHtml || "Not set",
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

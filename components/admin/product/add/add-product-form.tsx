@@ -10,9 +10,8 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Product } from "@/types/product";
 import { ArrowLeft, ArrowRight, Check, Save, Send } from "lucide-react";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BasicInformation } from "./basic-information";
 import { ProductMedia } from "./product-media";
@@ -25,6 +24,8 @@ import { ProductOrganization } from "./product-organization";
 import { SeoSettings } from "./seo-settings";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { addProduct } from "@/actions/product-actions";
+import { Product } from "@/types/product";
 
 const steps = [
   {
@@ -61,6 +62,7 @@ const steps = [
       "availability",
       "stock",
       "lowStockThreshold",
+      "sku",
     ],
   },
   {
@@ -69,7 +71,12 @@ const steps = [
     fullTitle: "Product Source Information",
     description: "Specify product origin, beekeeper, and harvest details",
     component: SourceOrigin,
-    requiredFields: ["source.region", "source.beekeeper"],
+    requiredFields: [
+      "source.region",
+      "source.beekeeper",
+      "sourceDetailsHtml",
+      "sourceDetailsJson",
+    ],
   },
   {
     id: 5,
@@ -85,7 +92,7 @@ const steps = [
     fullTitle: "Tags & Product Organization",
     description: "Add tags and organize your products for better discovery",
     component: ProductOrganization,
-    requiredFields: ["tags"],
+    requiredFields: ["tags", "collections"],
   },
   {
     id: 7,
@@ -93,9 +100,7 @@ const steps = [
     fullTitle: "SEO & Metadata",
     description: "Add SEO title, description, and keywords for search engines",
     component: SeoSettings,
-    requiredFields: [
-      // "seo.title", "seo.description", "seo.url"
-    ],
+    requiredFields: ["seo.title", "seo.description", "seo.url"],
   },
   {
     id: 8,
@@ -103,7 +108,7 @@ const steps = [
     fullTitle: "Review & Publish",
     description: "Review all details before publishing your product",
     component: ReviewStep,
-    requiredFields: ["status"],
+    requiredFields: [],
   },
 ];
 
@@ -122,11 +127,7 @@ export default function AddProductForm() {
       sku: "",
       barcode: "",
       category: "",
-      badge: "",
-      status: "draft",
       featured: false,
-
-      // Step 2: Description
       shortDescription: "",
       descriptionJson: {},
       descriptionHtml: "",
@@ -135,14 +136,12 @@ export default function AddProductForm() {
       images: [],
 
       // Step 4: Pricing & Inventory
-      currency: "BDT",
       costPrice: 0,
       price: 0,
       originalPrice: undefined,
       discountPercentage: undefined,
       availability: "in-stock",
       stock: 0,
-      trackingQuantity: false,
       lowStockThreshold: undefined,
 
       // Step 5: Source & Origin
@@ -160,7 +159,8 @@ export default function AddProductForm() {
         estimatedDays: undefined,
         freeDelivery: false,
       },
-      returnPolicy: "",
+      returnPolicyHtml: "",
+      returnPolicyJson: {},
 
       // Step 7: SEO
       seo: {
@@ -176,11 +176,6 @@ export default function AddProductForm() {
       rating: undefined,
       totalReviews: undefined,
       isOnSale: false,
-
-      // DB-related
-      productId: "",
-      createdAt: undefined,
-      updatedAt: undefined,
     },
   });
 
@@ -189,24 +184,26 @@ export default function AddProductForm() {
   const CurrentStepComponent = currentStepData?.component;
 
   // Check if step is completed based on required fields
-  const isStepCompleted = (stepId: number) => {
-    const step = steps.find((s) => s.id === stepId);
-    if (!step || !step.requiredFields) return true;
+  const isStepCompleted = useCallback(
+    (stepId: number) => {
+      const step = steps.find((s) => s.id === stepId);
+      if (!step || !step.requiredFields) return true;
+      const formData = form.getValues();
+      console.log("FormData:", formData);
+      return step.requiredFields.every((field) => {
+        const value = field
+          .split(".")
+          .reduce((obj: any, key) => (obj ? obj[key] : undefined), formData);
 
-    const formData = form.getValues(); // safer than watch
-
-    return step.requiredFields.every((field) => {
-      const value = field
-        .split(".")
-        .reduce((obj: any, key) => (obj ? obj[key] : undefined), formData);
-
-      if (typeof value === "boolean") return true; // booleans are always valid
-      if (Array.isArray(value)) return value.length > 0; // arrays must have at least 1 item
-      if (typeof value === "object" && value !== null)
-        return Object.keys(value).length > 0; // non-empty objects
-      return value !== undefined && value !== null && value !== ""; // primitive values
-    });
-  };
+        if (typeof value === "boolean") return true; // booleans are always valid
+        if (Array.isArray(value)) return value.length > 0; // arrays must have at least 1 item
+        if (typeof value === "object" && value !== null)
+          return Object.keys(value).length > 0; // non-empty objects
+        return value !== undefined && value !== null && value !== ""; // primitive values
+      });
+    },
+    [form]
+  );
 
   // Handle step click
   const handleStepClick = (stepId: number) => {
@@ -243,7 +240,7 @@ export default function AddProductForm() {
   };
 
   // Handle next step
-  const handleNext = () => {
+  const handleNext = async () => {
     const stepCompleted = isStepCompleted(currentStep);
 
     if (!stepCompleted) {
@@ -286,30 +283,22 @@ export default function AddProductForm() {
     const step = steps.find((s) => s.id === stepId);
     return step?.title !== "Review";
   }).length;
+
   const progressPercentage = Math.round(
     (completedStepsCount / totalSteps) * 100
   );
 
-  const onSubmit = async (data: Product) => {
+  const onSubmit = async () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const formData = form.watch();
+      const result = await addProduct(formData);
 
-      const submitData = {
-        ...data,
-        isDraft,
-        timestamp: new Date().toISOString(),
-        completedSteps,
-        currentStep,
-      };
-
-      console.log("=== PRODUCT SUBMISSION ===");
-      console.log("Submission Type:", isDraft ? "DRAFT" : "PUBLISH");
-      console.log("Product Data:", submitData);
-      console.log("Form Validation:", form.formState);
-      console.log("========================");
+      if (!result.success) {
+        toast.error(result.message);
+        return;
+      }
 
       if (isDraft) {
         toast.success("Draft saved successfully!", {
@@ -425,8 +414,7 @@ export default function AddProductForm() {
                       >
                         {isCompleted ? <Check className="h-3 w-3" /> : step.id}
                       </div>
-                      <span className="hidden sm:block">{step.fullTitle}</span>
-                      <span className="block sm:hidden">{step.title}</span>
+                      <span>{step.title}</span>
                     </button>
                   </React.Fragment>
                 );

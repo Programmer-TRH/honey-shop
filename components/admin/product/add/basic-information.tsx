@@ -1,5 +1,5 @@
 import { UseFormReturn } from "react-hook-form";
-import { useEffect } from "react";
+import { useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,22 +10,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import { LexicalEditor } from "./lexical-editor";
+
 import { Button } from "@/components/ui/button";
-import { Sparkles, Check } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { Product } from "@/types/product"; // import your Product interface
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-  InputGroupText,
-} from "@/components/ui/input-group";
 import { LexicalEditor } from "@/components/rich-editor/lexical-editor";
 
 interface BasicInformationProps {
-  form: UseFormReturn<Product>;
+  form: UseFormReturn<any>;
 }
 
 export function BasicInformation({ form }: BasicInformationProps) {
@@ -34,9 +26,9 @@ export function BasicInformation({ form }: BasicInformationProps) {
   const productName = watch("productName");
   const category = watch("category");
   const shortDescription = watch("shortDescription");
-  const descriptionHtml = watch("descriptionHtml");
   const descriptionJson = watch("descriptionJson");
-  console.log("Html:", descriptionHtml, "Json:", descriptionJson);
+  const memoDescriptionJson = useMemo(() => descriptionJson, [descriptionJson]);
+
   const generateShortDescription = () => {
     if (!productName) {
       toast.error("Please enter a product name first");
@@ -80,24 +72,6 @@ export function BasicInformation({ form }: BasicInformationProps) {
 
       {/* Product Name & Category */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 ">
-        {/* <div className="space-y-2">
-          <Label htmlFor="slug">
-            Slug <span className="text-red-500">*</span>
-          </Label>
-          <InputGroup>
-            <InputGroupAddon>
-              <InputGroupText>/products/</InputGroupText>
-            </InputGroupAddon>
-            <InputGroupInput
-              id="slug"
-              placeholder="product-name"
-              {...register("slug", { required: true })}
-            />
-          </InputGroup>
-          <p className="text-xs text-slate-400">
-            Unique identifier for inventory tracking
-          </p>
-        </div> */}
         <div className="space-y-2 ">
           <Label htmlFor="productName">
             Product Name <span className="text-red-500">*</span>
@@ -117,7 +91,7 @@ export function BasicInformation({ form }: BasicInformationProps) {
             onValueChange={(value) => setValue("category", value)}
             required
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
@@ -176,6 +150,7 @@ export function BasicInformation({ form }: BasicInformationProps) {
           Full Description <span className="text-red-500">*</span>
         </Label>
         <LexicalEditor
+          initialValue={memoDescriptionJson}
           onChange={(html, json) => {
             setValue("descriptionHtml", html);
             setValue("descriptionJson", json);

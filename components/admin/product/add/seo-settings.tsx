@@ -17,14 +17,18 @@ import {
   Search,
   Sparkles,
   Globe,
-  TrendingUp,
-  Eye,
-  ExternalLink,
   CheckCircle,
   AlertCircle,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 
 interface SeoSettingsProps {
   form: UseFormReturn<any>;
@@ -33,29 +37,13 @@ interface SeoSettingsProps {
 export function SeoSettings({ form }: SeoSettingsProps) {
   const { register, setValue, watch } = form;
   const [seoScore, setSeoScore] = useState(0);
-
-  const productName = watch("name");
-  const shortDescription = watch("shortDescription");
+  const productName = watch("productName");
   const category = watch("category");
+  const shortDescription = watch("shortDescription");
   const seoTitle = watch("seo.title");
   const seoDescription = watch("seo.description");
-  const seoSlug = watch("seo.slug");
+  const seoSlug = watch("seo.url");
   const seoKeywords = watch("seo.keywords") || [];
-
-  // Auto-generate slug from product name
-  useEffect(() => {
-    if (productName && !seoSlug) {
-      const generateSlug = (text: string) => {
-        return text
-          .toLowerCase()
-          .replace(/[^a-z0-9\s-]/g, "")
-          .replace(/\s+/g, "-")
-          .replace(/-+/g, "-")
-          .trim("-");
-      };
-      setValue("seo.slug", generateSlug(productName));
-    }
-  }, [productName, seoSlug, setValue]);
 
   // Calculate SEO score
   useEffect(() => {
@@ -105,6 +93,25 @@ export function SeoSettings({ form }: SeoSettingsProps) {
 
     setSeoScore(score);
   }, [seoTitle, seoDescription, seoSlug, seoKeywords, productName, category]);
+
+  // Generate slug from product name
+  const generatedSlug = () => {
+    if (!productName) {
+      toast.error("Please enter a product name first");
+      return;
+    }
+
+    const generateSlug = productName
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .trim("-");
+
+    setValue("seo.url", generateSlug);
+    setValue("slug", generateSlug);
+    toast.success("Slug generated!");
+  };
 
   const generateSeoTitle = () => {
     if (!productName) {
@@ -171,13 +178,14 @@ export function SeoSettings({ form }: SeoSettingsProps) {
       .filter((word: string) => word.length > 2);
 
     const additionalKeywords = [
-      "buy online",
-      "premium quality",
-      "best price",
-      "free shipping",
+      category,
       "fast delivery",
-      "high quality",
+      "premium quality",
       "authentic",
+      "best price",
+      "buy online",
+      "free shipping",
+      "high quality",
       "genuine",
       "discount",
       "sale",
@@ -399,18 +407,35 @@ export function SeoSettings({ form }: SeoSettingsProps) {
 
       {/* URL Slug */}
       <div className="space-y-2">
-        <Label htmlFor="seoSlug">URL Slug</Label>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500">yourstore.com/products/</span>
-          <Input
-            id="seoSlug"
-            placeholder="product-url-slug"
-            className="flex-1"
-            {...register("seo.slug")}
-          />
+        <div className="flex items-center justify-between gap-2">
+          <Label htmlFor="slug">
+            Slug <span className="text-red-500">*</span>
+          </Label>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={generatedSlug}
+            className="flex items-center space-x-1"
+          >
+            <Sparkles className="h-3 w-3" />
+            <span>Generate</span>
+          </Button>
         </div>
-        <p className="text-xs text-gray-500">
-          URL-friendly version of your product name (auto-generated)
+
+        <InputGroup>
+          <InputGroupAddon>
+            <InputGroupText>/products/</InputGroupText>
+          </InputGroupAddon>
+          <InputGroupInput
+            id="slug"
+            placeholder="product-name"
+            {...register("seo.url", { required: true })}
+          />
+        </InputGroup>
+        <p className="text-xs text-slate-400">
+          Unique identifier for inventory tracking
         </p>
       </div>
 

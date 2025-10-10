@@ -9,6 +9,8 @@ import {
   UNDO_COMMAND,
   REDO_COMMAND,
   $createParagraphNode,
+  FORMAT_ELEMENT_COMMAND,
+  ElementFormatType,
 } from "lexical";
 import { $setBlocksType } from "@lexical/selection";
 import {
@@ -37,6 +39,10 @@ import {
   Redo,
   Type,
   ImagePlus,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -59,6 +65,7 @@ export function ToolbarPlugin() {
   const [isUnderline, setIsUnderline] = useState(false);
   const [isLink, setIsLink] = useState(false);
   const [blockType, setBlockType] = useState("paragraph");
+  const [elementFormat, setElementFormat] = useState<ElementFormatType>("left");
 
   const [showLinkDialog, setShowLinkDialog] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
@@ -100,6 +107,13 @@ export function ToolbarPlugin() {
         } else {
           setBlockType(element.getType());
         }
+      }
+
+      if ("getFormatType" in element) {
+        const format = (element as any).getFormatType();
+        setElementFormat(format || "left");
+      } else {
+        setElementFormat("left");
       }
     }
   }, [editor]);
@@ -343,6 +357,63 @@ export function ToolbarPlugin() {
           title="Numbered List"
         >
           <ListOrdered className="h-4 w-4" />
+        </Button>
+
+        <Separator orientation="vertical" className="h-6 mx-1" />
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className={`h-8 w-8 p-0 ${
+            elementFormat === "left" ? "bg-gray-200 dark:bg-gray-800" : ""
+          }`}
+          onClick={() => editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "left")}
+          title="Align Left"
+        >
+          <AlignLeft className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className={`h-8 w-8 p-0 ${
+            elementFormat === "center" ? "bg-gray-200 dark:bg-gray-800" : ""
+          }`}
+          onClick={() =>
+            editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "center")
+          }
+          title="Align Center"
+        >
+          <AlignCenter className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className={`h-8 w-8 p-0 ${
+            elementFormat === "right" ? "bg-gray-200 dark:bg-gray-800" : ""
+          }`}
+          onClick={() =>
+            editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "right")
+          }
+          title="Align Right"
+        >
+          <AlignRight className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className={`h-8 w-8 p-0 ${
+            elementFormat === "justify" ? "bg-gray-200 dark:bg-gray-800" : ""
+          }`}
+          onClick={() =>
+            editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "justify")
+          }
+          title="Justify"
+        >
+          <AlignJustify className="h-4 w-4" />
         </Button>
 
         <Separator orientation="vertical" className="h-6 mx-1" />

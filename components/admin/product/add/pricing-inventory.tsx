@@ -19,6 +19,9 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { toast } from "sonner";
+import { Product } from "@/types/product";
+import { singleProductSchema } from "@/lib/shcema/single-product";
+import z from "zod";
 
 interface PricingInventoryProps {
   form: UseFormReturn<any>;
@@ -50,7 +53,10 @@ export function PricingInventory({ form }: PricingInventoryProps) {
       ? Math.round(((originalPrice - price) / originalPrice) * 100)
       : 0;
 
-  const handlePriceChange = (field: string, value: string) => {
+  const handlePriceChange = (
+    field: keyof z.infer<typeof singleProductSchema>,
+    value: string
+  ) => {
     const numValue = parseFloat(value) || 0;
     setValue(field, numValue);
 
@@ -119,7 +125,11 @@ export function PricingInventory({ form }: PricingInventoryProps) {
                 id="costPrice"
                 type="number"
                 placeholder="0.00"
-                {...register("costPrice", { valueAsNumber: true })}
+                {...register("costPrice", {
+                  valueAsNumber: true,
+                  required: true,
+                })}
+                required
               />
             </div>
             <div className="space-y-2">
@@ -237,7 +247,10 @@ export function PricingInventory({ form }: PricingInventoryProps) {
                 type="number"
                 min="0"
                 placeholder="10"
-                {...register("lowStockThreshold", { valueAsNumber: true })}
+                {...register("lowStockThreshold", {
+                  valueAsNumber: true,
+                  required: true,
+                })}
               />
               <p className="text-xs text-gray-500">
                 Get notified when stock reaches this level
@@ -257,7 +270,7 @@ export function PricingInventory({ form }: PricingInventoryProps) {
                       <Badge className="bg-red-100 text-red-800">
                         Out of Stock
                       </Badge>
-                    ) : stock > 10 ? (
+                    ) : stock > lowStockThreshold ? (
                       <Badge className="bg-green-100 text-green-800">
                         In Stock
                       </Badge>
