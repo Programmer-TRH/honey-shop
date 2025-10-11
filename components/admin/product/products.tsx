@@ -106,11 +106,12 @@ const categories = [
   "Sports",
   "Books",
 ];
+
 const stockFilters = ["All Stock", "In Stock", "Low Stock", "Out of Stock"];
 const statusFilters = ["All Status", "Active", "Inactive", "Draft"];
 
 export default function Products() {
-     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All Categories");
   const [stockFilter, setStockFilter] = useState("All Stock");

@@ -28,6 +28,8 @@ export function BasicInformation({ form }: BasicInformationProps) {
   const shortDescription = watch("shortDescription");
   const descriptionJson = watch("descriptionJson");
   const memoDescriptionJson = useMemo(() => descriptionJson, [descriptionJson]);
+  console.log("HTML:", watch("descriptionHtml"));
+  console.log("Json:", descriptionJson);
 
   const generateShortDescription = () => {
     if (!productName) {

@@ -189,7 +189,7 @@ export default function AddProductForm() {
       const step = steps.find((s) => s.id === stepId);
       if (!step || !step.requiredFields) return true;
       const formData = form.getValues();
-      console.log("FormData:", formData);
+
       return step.requiredFields.every((field) => {
         const value = field
           .split(".")
