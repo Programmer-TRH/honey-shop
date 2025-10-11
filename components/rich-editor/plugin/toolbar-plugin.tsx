@@ -17,6 +17,7 @@ import {
   $createHeadingNode,
   HeadingTagType,
   $isHeadingNode,
+  $createQuoteNode,
 } from "@lexical/rich-text";
 import {
   INSERT_UNORDERED_LIST_COMMAND,
@@ -43,6 +44,7 @@ import {
   AlignCenter,
   AlignRight,
   AlignJustify,
+  Quote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -147,6 +149,24 @@ export function ToolbarPlugin() {
       });
     }
   };
+
+  const formatQuote = () => {
+  editor.update(() => {
+    const selection = $getSelection();
+
+    if ($isRangeSelection(selection)) {
+      const anchorNode = selection.anchor.getNode();
+      const topNode = anchorNode.getTopLevelElementOrThrow();
+
+      // Toggle: if already quote -> paragraph
+      if (topNode.getType() === "quote") {
+        $setBlocksType(selection, () => $createParagraphNode());
+      } else {
+        $setBlocksType(selection, () => $createQuoteNode());
+      }
+    }
+  });
+};
 
   const insertLink = () => {
     if (!isLink) {
@@ -330,6 +350,18 @@ export function ToolbarPlugin() {
           title="Code"
         >
           <Code className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className={`h-8 w-8 p-0 ${
+            blockType === "quote" ? "bg-gray-200 dark:bg-gray-800" : ""
+          }`}
+          onClick={() => formatQuote()}
+          title="Blockquote"
+        >
+          <Quote />
         </Button>
 
         <Separator orientation="vertical" className="h-6 mx-1" />

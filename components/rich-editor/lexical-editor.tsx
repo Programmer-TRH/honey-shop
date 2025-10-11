@@ -45,6 +45,8 @@ const theme = {
     code: "bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded font-mono text-sm",
   },
   image: "editor-image",
+  quote:
+    "relative border-l-4 border-gray-400 dark:border-gray-600 pl-5 pr-4 py-3 italic text-gray-700 dark:text-gray-300 text-base font-medium my-3 bg-gradient-to-r from-yellow-50 via-yellow-100 to-yellow-50 dark:bg-gray-900 rounded-md shadow-sm before:absolute before:-top-1 before:left-0 before:text-4xl before:text-gray-400 dark:before:text-gray-500 before:font-serif before:content-['“']",
 };
 
 const URL_MATCHER =
