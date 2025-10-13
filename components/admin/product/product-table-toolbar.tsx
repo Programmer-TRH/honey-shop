@@ -18,12 +18,14 @@ interface FilterValue {
   count: number;
 }
 
-interface Filters {
-  category: FilterValue[];
-  availability: FilterValue[];
+interface FiltersProps {
+  filters: {
+    category: FilterValue[];
+    availability: FilterValue[];
+  };
 }
 
-export default function ProductTableToolbar({ filters }: { filters: Filters }) {
+export default function ProductTableToolbar({ filters }: FiltersProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All Categories");
   const [stockFilter, setStockFilter] = useState("All Stock");

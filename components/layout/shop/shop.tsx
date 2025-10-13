@@ -22,11 +22,11 @@ export interface ProductProps {
   data: Product[];
   meta: Meta;
   filters: {
-    weight: FilterValue[];
+    weight?: FilterValue[];
     availability: FilterValue[];
-    type: FilterValue[];
-    badge: FilterValue[];
-    price: FilterValue[];
+    category: FilterValue[];
+    badge?: FilterValue[];
+    price?: FilterValue[];
   };
 }
 

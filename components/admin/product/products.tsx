@@ -1,13 +1,6 @@
 import { Button } from "@/components/ui/button";
 
-import {
-  Plus,
-  Upload,
-  Download,
-  Search,
-  Filter,
-  RefreshCw,
-} from "lucide-react";
+import { Plus, Upload, Download } from "lucide-react";
 import Link from "next/link";
 import ProductsTable from "./products-table";
 import ProductTableToolbar from "./product-table-toolbar";

@@ -7,6 +7,7 @@ import {
   getProducts,
 } from "@/services/product-services";
 import { Product } from "@/types/product";
+import { revalidateTag } from "next/cache";
 import { v4 as uuidv4 } from "uuid";
 
 async function generateCloudinarySignature(
@@ -116,7 +117,7 @@ export async function addProductAction(formData: Product) {
 
     const product = {
       ...data,
-      productId: uuidv4(),
+      id: uuidv4(),
       createdAt: new Date(),
       images: uploadedImages,
     };
@@ -124,6 +125,7 @@ export async function addProductAction(formData: Product) {
     console.log("Final product to insert:", product);
 
     await addProduct(product);
+    revalidateTag("products");
 
     return {
       success: true,

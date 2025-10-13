@@ -1,9 +1,9 @@
 import { mockData } from "@/lib/mock-data";
-import { getData } from "./data-service";
 import { BlogPost } from "@/actions/data-actions";
+import { dataService } from "./data-service";
 
 export async function getBlogPosts() {
-  const result = await getData("blogs");
+  const result = await dataService.list("blogs");
   return result;
 }
 

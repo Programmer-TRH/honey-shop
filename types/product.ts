@@ -60,7 +60,7 @@ export interface Product {
   isOnSale?: boolean;
 
   // DB-related
-  id: string;
+  id: number;
   createdAt?: Date | { $date: string };
   updatedAt?: Date | { $date: string };
 }

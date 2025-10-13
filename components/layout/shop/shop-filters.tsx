@@ -32,7 +32,6 @@ interface FiltersProps {
   filters: {
     weight: FilterValue[];
     availability: FilterValue[];
-    type: FilterValue[];
     badge: FilterValue[];
     price: FilterValue[];
   };
@@ -53,12 +52,6 @@ export function ShopFilters({ filters }: FiltersProps) {
     ? query.weight
     : query.weight
     ? query.weight.split(",")
-    : [];
-
-  const selectedTypes: string[] = Array.isArray(query.type)
-    ? query.type
-    : query.type
-    ? query.type.split(",")
     : [];
 
   const selectedBadges: string[] = Array.isArray(query.badge)
@@ -95,7 +88,6 @@ export function ShopFilters({ filters }: FiltersProps) {
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
 
   const weights = filters.weight;
-  const types = filters.type;
   const badges = filters.badge;
 
   const handleRatingChange = (value: number | null) => {
@@ -112,28 +104,6 @@ export function ShopFilters({ filters }: FiltersProps) {
 
     updateQuery({
       weight: next.length ? next.join(",") : null,
-      page: "1",
-    });
-  };
-
-  const handleTypeChange = (type: string, checked: boolean) => {
-    const next = checked
-      ? [...selectedTypes, type]
-      : selectedTypes.filter((t) => t !== type);
-
-    updateQuery({
-      type: next.length ? next.join(",") : null,
-      page: "1",
-    });
-  };
-
-  const handleBadgeChange = (badge: string, checked: boolean) => {
-    const next = checked
-      ? [...selectedTypes, badges]
-      : selectedTypes.filter((b) => b !== badge);
-
-    updateQuery({
-      badge: next.length ? next.join(",") : null,
       page: "1",
     });
   };
@@ -167,7 +137,6 @@ export function ShopFilters({ filters }: FiltersProps) {
 
   const activeFiltersCount =
     selectedWeights.length +
-    selectedTypes.length +
     selectedBadges.length +
     (showAvailabilityOnly ? 1 : 0) +
     (query.minPrice || query.maxPrice ? 1 : 0) +
@@ -213,40 +182,7 @@ export function ShopFilters({ filters }: FiltersProps) {
               </button>
             </Badge>
           ))}
-          {selectedBadges.map((badge) => (
-            <Badge
-              key={badge}
-              variant="secondary"
-              className="bg-primary/10 text-primary"
-            >
-              {badge}
-              <button
-                type="button"
-                title="Remove filter"
-                onClick={() => handleBadgeChange(badge, false)}
-                className="ml-1 hover:bg-primary/20 rounded-full p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-          {selectedTypes.map((type) => (
-            <Badge
-              key={type}
-              variant="secondary"
-              className="bg-primary/10 text-primary"
-            >
-              {type}
-              <button
-                type="button"
-                title="Remove filter"
-                onClick={() => handleTypeChange(type, false)}
-                className="ml-1 hover:bg-primary/20 rounded-full p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
+
           {showAvailabilityOnly && (
             <Badge variant="secondary" className="bg-green-100 text-green-700">
               In Stock Only
@@ -443,36 +379,6 @@ export function ShopFilters({ filters }: FiltersProps) {
                 checked={selectedWeights.includes(value)}
                 onCheckedChange={(checked) =>
                   handleWeightChange(value, checked as boolean)
-                }
-              />
-              <Label
-                htmlFor={value}
-                className="text-sm font-normal cursor-pointer flex justify-between w-full"
-              >
-                <span>{value}</span>
-                <span className="ml-auto text-muted-foreground">({count})</span>
-              </Label>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      {/* Honey Type Filter */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-1">
-            <ChartBarStacked className="size-4" />
-            Honey Type
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {types?.map(({ value, count }) => (
-            <div key={value} className="flex items-center space-x-2">
-              <Checkbox
-                id={value}
-                checked={selectedTypes.includes(value)}
-                onCheckedChange={(checked) =>
-                  handleTypeChange(value, checked as boolean)
                 }
               />
               <Label

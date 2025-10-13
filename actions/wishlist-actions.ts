@@ -1,6 +1,7 @@
 "use server";
 
-import { mockProducts } from "@/lib/mock-data";
+import { mockData } from "@/lib/mock-data";
+import { Product } from "@/types/product";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -43,7 +44,7 @@ export async function getWishlist(): Promise<Wishlist> {
 
 // Save wishlist to cookies
 async function saveWishlist(wishlist: Wishlist) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   cookieStore.set("wishlist", JSON.stringify(wishlist), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -55,7 +56,7 @@ async function saveWishlist(wishlist: Wishlist) {
 // Add item to wishlist
 export async function addToWishlist(productId: number) {
   try {
-    const product = mockProducts.find((p) => p.id === productId);
+    const product = mockData.products.find((p: Product) => p.id === productId);
     if (!product) {
       return { success: false, error: "Product not found" };
     }
@@ -117,7 +118,7 @@ export async function removeFromWishlist(productId: number) {
 }
 
 // Check if product is in wishlist
-export async function isInWishlist(productId: string): Promise<boolean> {
+export async function isInWishlist(productId: number): Promise<boolean> {
   const wishlist = await getWishlist();
   return wishlist.items.some((item) => item.productId === productId);
 }
