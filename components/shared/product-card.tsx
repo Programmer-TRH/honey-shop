@@ -9,6 +9,7 @@ import PlaceholderImage from "@/public/placeholder.svg";
 import { Product } from "@/types/product";
 
 export default function ProductCard({ product }: { product: Product }) {
+  console.log("Product ID:", product.id);
   const toggleFavorite = async (productId: string) => {
     console.log("Add Favourite.");
   };
@@ -19,10 +20,7 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <Card
-      key={product.id}
-      className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-border/50 overflow-hidden bg-white"
-    >
+    <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-border/50 overflow-hidden bg-white">
       {/* Image & Badges */}
       <div className="relative">
         <div className="aspect-square bg-gradient-to-br from-primary/5 to-orange-50 p-6 flex items-center justify-center relative overflow-hidden group">
