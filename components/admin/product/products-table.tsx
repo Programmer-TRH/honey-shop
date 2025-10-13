@@ -30,6 +30,7 @@ import Image from "next/image";
 import React, { useState } from "react";
 
 export default function ProductsTable({ products }: { products: Product[] }) {
+  console.log("Products:", products);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
   const toggleSelectAll = () => {
@@ -90,6 +91,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
           </div>
         </Card>
       )}
+
       <Card>
         <div className="overflow-x-auto">
           <Table>

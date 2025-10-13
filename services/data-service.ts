@@ -86,13 +86,12 @@ export const dataService = {
         $facet: {
           data: [
             { $match: { rowNumber: { $gt: skip, $lte: skip + limitNum } } },
-            { $project: { rowNumber: 0 } },
+            { $project: { rowNumber: 0, _id: 0 } },
           ],
           totalCount: [{ $count: "count" }],
           ...filterFacets,
         },
       },
-      { $project: { _id: 0 } },
     ];
 
     const [aggResult] = await coll.aggregate(pipeline).toArray();

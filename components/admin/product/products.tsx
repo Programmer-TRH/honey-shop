@@ -1,10 +1,8 @@
 import { Button } from "@/components/ui/button";
-
 import { Plus, Upload, Download } from "lucide-react";
 import Link from "next/link";
 import ProductsTable from "./products-table";
 import ProductTableToolbar from "./product-table-toolbar";
-import { ProductProps } from "@/components/layout/shop/shop";
 
 export const revalidate = 3600;
 
@@ -18,7 +16,9 @@ export default async function Products() {
   });
 
   const productData = await res.json();
-  const { data, meta, filters } = productData as ProductProps;
+  console.log("Product Data:", productData);
+
+  const { data, meta, filters } = productData;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
