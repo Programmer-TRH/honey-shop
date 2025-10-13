@@ -8,13 +8,12 @@ export async function getBlogPosts() {
 }
 
 export async function getBlogPost({
-  blogId,
+  slug,
 }: {
-  blogId: number | string;
+  slug: string;
 }): Promise<BlogPost | undefined> {
   const data = mockData["blogs"] || [];
-  const id = typeof blogId === "string" ? parseInt(blogId, 10) : blogId;
-  const blog = data.find((blog) => blog.id === id);
+  const blog = data.find((blog) => blog.slug === slug);
   return blog;
 }
 

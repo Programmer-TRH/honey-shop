@@ -24,8 +24,8 @@ export const revalidate = 60;
 // Generate static params for all blog posts
 export async function generateStaticParams() {
   const blogs = await getBlogPosts();
-  const blogParams = blogs.data.map((blog) => ({
-    blogId: blog.id.toString(),
+  const blogParams = blogs.data.map((blog: any) => ({
+    slug: blog.slug,
   }));
 
   return blogParams;
@@ -34,12 +34,11 @@ export async function generateStaticParams() {
 export default async function BlogPostPage({
   params,
 }: {
-  params: { blogId: string } | Promise<{ blogId: string }>;
+  params: { slug: string } | Promise<{ slug: string }>;
 }) {
   const resolvedParams = params instanceof Promise ? await params : params;
-  const { blogId } = resolvedParams;
-  const post = await getBlogPost({ blogId });
-  console.log("Post:", post);
+  const { slug } = resolvedParams;
+  const post = await getBlogPost({ slug });
 
   const relatedPosts = await getRelatedBlogPosts({
     currentBlog: post!,
