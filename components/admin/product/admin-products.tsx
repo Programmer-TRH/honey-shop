@@ -3,19 +3,21 @@ import { Plus, Upload, Download } from "lucide-react";
 import Link from "next/link";
 import ProductsTable from "./products-table";
 import ProductTableToolbar from "./product-table-toolbar";
+import { dataService } from "@/services/data-service";
 
 export const revalidate = 3600;
 
 export default async function AdminProducts() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const res = await fetch(`${baseUrl}/api/custom/products?`, {
-    next: {
-      tags: ["products"],
-      revalidate: 3600,
-    },
-  });
+  // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  // const res = await fetch(`${baseUrl}/api/custom/products?`, {
+  //   next: {
+  //     tags: ["products"],
+  //     revalidate: 3600,
+  //   },
+  // });
+  // const productData = await res.json();
 
-  const productData = await res.json();
+  const productData = await dataService.list("products");
   console.log("Product Data:", productData);
 
   const { data, meta, filters } = productData;

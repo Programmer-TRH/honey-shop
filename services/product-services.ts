@@ -9,7 +9,6 @@ export async function getProducts() {
 }
 
 export async function getProduct(slug: string): Promise<Product> {
-  console.log("Slug:", slug);
   const product = await dataService.single("products", slug);
   if (!product) throw new Error("Product not found");
   return product as Product;
