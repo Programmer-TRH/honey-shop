@@ -30,10 +30,11 @@ interface FilterValue {
 
 interface FiltersProps {
   filters: {
-    weight: FilterValue[];
-    availability: FilterValue[];
-    badge: FilterValue[];
-    price: FilterValue[];
+    weight?: FilterValue[];
+    category?: FilterValue[];
+    availability?: FilterValue[];
+    badge?: FilterValue[];
+    price?: FilterValue[];
   };
 }
 

@@ -44,7 +44,7 @@ export async function addProduct(product: any): Promise<Product> {
   }
 
   const insertedProduct: Product | null = await products.findOne({
-    productId: product.productId,
+    id: product.id,
   });
 
   console.log("IntertedProduct:", insertedProduct);
