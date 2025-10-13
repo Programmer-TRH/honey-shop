@@ -124,7 +124,6 @@ export function ShopFilters({ filters }: FiltersProps) {
   const clearFilters = () => {
     updateQuery({
       weight: null,
-      type: null,
       availability: null,
       minPrice: null,
       maxPrice: null,
