@@ -8,7 +8,7 @@ import Image from "next/image";
 import PlaceholderImage from "@/public/placeholder.svg";
 import { Product } from "@/types/product";
 
-export default function ProductCard({ products }: { products: Product[] }) {
+export default function ProductCard({ product }: { product: Product }) {
   const toggleFavorite = async (productId: string) => {
     console.log("Add Favourite.");
   };
@@ -18,7 +18,7 @@ export default function ProductCard({ products }: { products: Product[] }) {
     console.log("Add to cart.");
   };
 
-  return products.map((product) => (
+  return (
     <Card
       key={product.id}
       className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-border/50 overflow-hidden bg-white"
@@ -164,7 +164,7 @@ export default function ProductCard({ products }: { products: Product[] }) {
               size="sm"
               className="flex-1 bg-transparent"
             >
-              <Link href={`/shop/${product.id}`}>
+              <Link href={`/shop/${product.slug}`}>
                 <Eye className="h-4 w-4 mr-1" />
                 View Details
               </Link>
@@ -187,5 +187,5 @@ export default function ProductCard({ products }: { products: Product[] }) {
         </CardContent>
       </div>
     </Card>
-  ));
+  );
 }
