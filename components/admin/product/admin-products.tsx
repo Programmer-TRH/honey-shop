@@ -9,15 +9,15 @@ export const revalidate = 3600;
 
 export default async function AdminProducts() {
   // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  // const res = await fetch(`${baseUrl}/api/custom/products?`, {
-  //   next: {
-  //     tags: ["products"],
-  //     revalidate: 3600,
-  //   },
-  // });
-  // const productData = await res.json();
+  const res = await fetch(`/api/custom/products?`, {
+    next: {
+      tags: ["products"],
+      revalidate: 3600,
+    },
+  });
+  const productData = await res.json();
 
-  const productData = await dataService.list("products");
+  // const productData = await dataService.list("products");
   console.log("Product Data:", productData);
 
   const { data, meta, filters } = productData;
