@@ -1,6 +1,6 @@
 import { parseSearchParams } from "@/lib/query/parseSearchParams";
 import { productSchema } from "@/lib/shcema/product-schema";
-import { getData } from "@/services/data-service";
+import { dataService } from "@/services/data-service";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -12,7 +12,7 @@ export async function GET(
     const searchParams = req.nextUrl.searchParams;
 
     const query = parseSearchParams(searchParams, productSchema);
-    const result = await getData(collection, query);
+    const result = await dataService.list(collection, query);
 
     return NextResponse.json({
       success: true,

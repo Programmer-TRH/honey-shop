@@ -1,8 +1,11 @@
 "use server";
 import { withErrorHandling } from "@/lib/error-handler";
-import { connectToDatabase } from "@/lib/mongodb";
 import { singleProductSchema } from "@/lib/shcema/single-product";
-import { getProduct, getProducts } from "@/services/product-services";
+import {
+  addProduct,
+  getProduct,
+  getProducts,
+} from "@/services/product-services";
 import { Product } from "@/types/product";
 import { v4 as uuidv4 } from "uuid";
 
@@ -26,7 +29,7 @@ async function generateCloudinarySignature(
 }
 
 async function uploadToCloudinary(base64: string) {
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
@@ -82,13 +85,8 @@ export const fetchProductById = withErrorHandling(fetchProductByIdInternal, {
   successMessage: "Product fetched successfully",
 });
 
-export async function addProduct(formData: Product) {
+export async function addProductAction(formData: Product) {
   try {
-    const client = await connectToDatabase();
-    const db = client.db("pure-honey");
-    const products = db.collection("products");
-
-    // ✅ Step 1: Validate data using Zod schema
     const parsed = singleProductSchema.safeParse(formData);
     console.log("Parsed Data:", parsed);
 
@@ -105,19 +103,17 @@ export async function addProduct(formData: Product) {
     }
     const data = parsed.data;
 
-    // ✅ Step 2: Handle image uploads (Base64 → Cloudinary URL)
     const uploadedImages = await Promise.all(
       (data.images || []).map(async (img) => {
         if (img.startsWith("data:image")) {
           return await uploadToCloudinary(img);
         }
-        return img; // Already a URL
+        return img;
       })
     );
 
     console.log("Image URL:", uploadedImages);
 
-    // ✅ Step 3: Insert to DB (mock for now)
     const product = {
       ...data,
       productId: uuidv4(),
@@ -127,7 +123,7 @@ export async function addProduct(formData: Product) {
 
     console.log("Final product to insert:", product);
 
-    products.insertOne(product);
+    await addProduct(product);
 
     return {
       success: true,

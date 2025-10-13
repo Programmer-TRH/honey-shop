@@ -34,6 +34,7 @@ export const createUser = async ({
     first_name,
     last_name,
     email,
+    avatar: "",
     password: hashedPassword,
     role: "user",
     created_at: new Date(),

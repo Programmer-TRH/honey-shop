@@ -2,22 +2,19 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, ShoppingCart, Heart, Eye, Shield, Loader2 } from "lucide-react";
+import { Star, ShoppingCart, Heart, Eye, Shield } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useParsedQuery } from "@/hooks/useParsedQuery";
-import { productSchema } from "@/lib/shcema/product-schema";
 import PlaceholderImage from "@/public/placeholder.svg";
-import { Product } from "@/lib/mock-data";
+import { Product } from "@/types/product";
 
 export default function ProductCard({ products }: { products: Product[] }) {
-  // const { query, updateQuery } = useParsedQuery(productSchema);
-
-  const toggleFavorite = async (productId: number) => {
+  const toggleFavorite = async (productId: string) => {
     console.log("Add Favourite.");
   };
 
-  const handleAddToCart = async (productId: number) => {
+  const handleAddToCart = async (productId: string) => {
+    console.log("Product iD:", productId);
     console.log("Add to cart.");
   };
 
@@ -35,15 +32,15 @@ export default function ProductCard({ products }: { products: Product[] }) {
             width={400}
             height={400}
             src={product.images[0] || PlaceholderImage}
-            alt={product.name}
+            alt={product.productName}
             className="relative z-10 max-w-full h-auto transition-transform duration-500 group-hover:scale-110"
           />
 
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-2 z-20">
-            {product.badge && (
+            {product.tags && (
               <Badge className="bg-primary text-white shadow-lg">
-                {product.badge}
+                {product.tags}
               </Badge>
             )}
             {product.availability && (
@@ -75,7 +72,10 @@ export default function ProductCard({ products }: { products: Product[] }) {
               size="sm"
               className="cursor-pointer"
             >
-              <Link href={`/shop/${product.id}`} className="flex items-center">
+              <Link
+                href={`/shop/${product.slug}`}
+                className="flex items-center"
+              >
                 <Eye className="h-4 w-4 mr-1" />
                 Quick View
               </Link>
@@ -92,8 +92,8 @@ export default function ProductCard({ products }: { products: Product[] }) {
             <div className="flex items-center space-x-2">
               <div className="flex items-center space-x-1">
                 {[...Array(5)].map((_, i) => {
-                  const fullStars = Math.floor(product.rating);
-                  const decimal = product.rating - fullStars;
+                  const fullStars = Math.floor(product?.rating!);
+                  const decimal = product?.rating! - fullStars;
                   let fillPercentage = 0;
 
                   if (i < fullStars) fillPercentage = 100;
@@ -120,7 +120,7 @@ export default function ProductCard({ products }: { products: Product[] }) {
                 {product.rating}
               </span>
               <span className="text-sm font-medium text-muted-foreground">
-                ({product.reviews})
+                ({product.totalReviews})
               </span>
             </div>
             <div className="flex items-center space-x-1 text-green-600">
@@ -130,9 +130,9 @@ export default function ProductCard({ products }: { products: Product[] }) {
           </div>
 
           {/* Product Info */}
-          <Link href={`/shop/${product.id}`}>
+          <Link href={`/shop/${product.slug}`}>
             <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-lg">
-              {product.name}
+              {product.productName}
             </h3>
           </Link>
           <p className="text-sm text-muted-foreground mb-4 font-medium">
@@ -150,12 +150,7 @@ export default function ProductCard({ products }: { products: Product[] }) {
                   ৳{product.originalPrice}
                 </span>
                 <Badge variant="destructive" className="text-xs">
-                  {Math.round(
-                    ((product.originalPrice - product.price) /
-                      product.originalPrice) *
-                      100
-                  )}
-                  % OFF
+                  {product.discountPercentage}% OFF
                 </Badge>
               </>
             )}

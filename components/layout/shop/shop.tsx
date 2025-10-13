@@ -3,8 +3,8 @@ import { ShopFilters } from "./shop-filters";
 import { ProductGrid } from "./product-grid";
 import { useSearchParams } from "next/navigation";
 import { useCache } from "@/hooks/useCache";
-import { Product } from "@/lib/mock-data";
 import LoadingSkeleton from "@/components/skeleton/loading-skeleton";
+import { Product } from "@/types/product";
 
 interface Meta {
   total: number;
@@ -18,7 +18,7 @@ interface FilterValue {
   count: number;
 }
 
-interface ProductProps {
+export interface ProductProps {
   data: Product[];
   meta: Meta;
   filters: {

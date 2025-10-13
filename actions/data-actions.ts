@@ -19,7 +19,7 @@ export interface BlogPost {
 }
 
 // Server action to get product reviews
-export async function getProductReviews(productId: number): Promise<Review[]> {
+export async function getProductReviews(productId: string): Promise<Review[]> {
   const reviews = mockData["reviews"];
   return reviews.filter((r) => r.productId === productId);
 }

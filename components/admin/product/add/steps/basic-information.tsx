@@ -113,6 +113,16 @@ export function BasicInformation({ form }: BasicInformationProps) {
             </SelectContent>
           </Select>
         </div>
+        <div className="space-y-2 ">
+          <Label htmlFor="weight">
+            Product weight <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="weight"
+            placeholder="e.g., Premium Wildflower Honey"
+            {...register("weight", { required: true })}
+          />
+        </div>
       </div>
 
       {/* Short Description */}

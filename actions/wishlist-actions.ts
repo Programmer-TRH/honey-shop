@@ -117,7 +117,7 @@ export async function removeFromWishlist(productId: number) {
 }
 
 // Check if product is in wishlist
-export async function isInWishlist(productId: number): Promise<boolean> {
+export async function isInWishlist(productId: string): Promise<boolean> {
   const wishlist = await getWishlist();
   return wishlist.items.some((item) => item.productId === productId);
 }

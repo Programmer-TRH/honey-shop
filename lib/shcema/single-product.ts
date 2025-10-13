@@ -8,8 +8,8 @@ export const singleProductSchema = z.object({
     .max(100),
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug format"),
   sku: z.string().min(1, "SKU is required"),
-  barcode: z.string().optional(),
   category: z.string().min(1, "Category is required"),
+  weight: z.string().min(1, "Weight is required."),
   featured: z.boolean(),
   shortDescription: z
     .string()

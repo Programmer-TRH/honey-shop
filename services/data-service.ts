@@ -1,4 +1,4 @@
-import { mockData } from "@/lib/mock-data";
+import { connectToDatabase } from "@/lib/mongodb";
 
 export type FilterValue = {
   value: string;
@@ -6,42 +6,41 @@ export type FilterValue = {
 };
 export type FilterOptions = Record<string, FilterValue[]>;
 
-export async function getData(
-  collection: string,
-  query: Record<string, any> = {}
-) {
-  const { q, page = 1, limit = 10, sort, ...filters } = query;
-  const searchableFields = getSearchableFields(collection);
-  const filterableFields = getFilterableFields(collection);
-  const data = mockData[collection] || [];
+export const dataService = {
+  // ----------------------------
+  // 1️⃣ List multiple documents
+  // ----------------------------
+  list: async (collection: string, query: Record<string, any> = {}) => {
+    const { q, page = 1, limit = 10, sort, ...filters } = query;
 
-  let filtered = data.filter((item) => {
-    // 1️⃣ Search
-    let searchMatches = true;
+    const searchableFields = getSearchableFields(collection);
+    const filterableFields = getFilterableFields(collection);
+
+    const client = await connectToDatabase();
+    const db = client.db("pure-honey");
+    const coll = db.collection(collection);
+
+    const mongoQuery: Record<string, any> = {};
+
+    // 🔍 Full-text search if available
     if (q && searchableFields.length) {
-      const regex = new RegExp(q, "i");
-      searchMatches = searchableFields.some((field) => regex.test(item[field]));
+      mongoQuery["$or"] = searchableFields.map((field) => ({
+        [field]: { $regex: new RegExp(q, "i") }, // Replace with $text if text index exists
+      }));
     }
-    if (!searchMatches) return false;
 
-    // 2️⃣ Dynamic filters
+    // 🔧 Dynamic filters
     for (const [key, value] of Object.entries(filters)) {
       if (value == null || value === "") continue;
-      const itemVal = item[key];
 
       if (key.startsWith("min") || key.startsWith("max")) {
         const field = key.replace(/^min|^max/, "");
         const targetField = field.charAt(0).toLowerCase() + field.slice(1);
-        if (typeof item[targetField] !== "number") continue;
-
-        const numVal = Number(value);
-        if (key.startsWith("min") && item[targetField] < numVal) return false;
-        if (key.startsWith("max") && item[targetField] > numVal) return false;
-        continue;
-      }
-
-      if (!isNaN(Number(value)) && typeof itemVal === "number") {
-        if (itemVal < Number(value)) return false;
+        if (!mongoQuery[targetField]) mongoQuery[targetField] = {};
+        if (key.startsWith("min"))
+          mongoQuery[targetField]["$gte"] = Number(value);
+        if (key.startsWith("max"))
+          mongoQuery[targetField]["$lte"] = Number(value);
         continue;
       }
 
@@ -49,91 +48,115 @@ export async function getData(
         .split(",")
         .map((v) => v.trim().toLowerCase());
 
-      const itemValStr = String(itemVal ?? "").toLowerCase();
-      if (!valuesArray.includes(itemValStr)) return false;
+      mongoQuery[key] = { $in: valuesArray };
     }
 
-    return true;
-  });
-
-  // ---- 3️⃣ Sorting ----
-  // If no sort is provided, default to "createdAt:desc"
-  const effectiveSort = sort || "createdAt:desc";
-
-  if (effectiveSort) {
+    // 📊 Sorting
+    const effectiveSort = sort || "createdAt:desc";
     const [sortField, sortDir] = effectiveSort.split(":");
-    filtered.sort((a, b) => {
-      const aVal = a[sortField];
-      const bVal = b[sortField];
+    const sortOrder = sortDir === "desc" ? -1 : 1;
 
-      if (aVal == null && bVal == null) return 0;
-      if (aVal == null) return 1;
-      if (bVal == null) return -1;
+    // ⚡ Pagination using $setWindowFields for deep pages
+    const skip = (Number(page) - 1) * Number(limit);
+    const limitNum = Number(limit);
 
-      if (typeof aVal === "number" && typeof bVal === "number") {
-        return sortDir === "desc" ? bVal - aVal : aVal - bVal;
-      } else {
-        return sortDir === "desc"
-          ? String(bVal).localeCompare(String(aVal))
-          : String(aVal).localeCompare(String(bVal));
-      }
-    });
-  }
+    const filterFacets = filterableFields.reduce((acc: any, field) => {
+      acc[field] = [
+        { $group: { _id: `$${field}`, count: { $sum: 1 } } },
+        {
+          $project: {
+            _id: 0,
+            value: { $ifNull: ["$_id", "unknown"] },
+            count: 1,
+          },
+        },
+      ];
+      return acc;
+    }, {});
 
-  // ---- 4️⃣ Pagination ----
-  const total = filtered.length;
-  const start = (Number(page) - 1) * Number(limit);
-  const paginated = filtered.slice(start, start + Number(limit));
+    const pipeline: any[] = [
+      { $match: mongoQuery },
+      {
+        $setWindowFields: {
+          sortBy: { [sortField]: sortOrder },
+          output: { rowNumber: { $documentNumber: {} } },
+        },
+      },
+      {
+        $facet: {
+          data: [
+            { $match: { rowNumber: { $gt: skip, $lte: skip + limitNum } } },
+            { $project: { rowNumber: 0 } },
+          ],
+          totalCount: [{ $count: "count" }],
+          ...filterFacets,
+        },
+      },
+    ];
 
-  // ---- 5️⃣ Dynamic filter options (with counts) ----
-  const filterOptions: FilterOptions = {};
-  for (const field of filterableFields) {
-    const counts: Record<string, number> = {};
+    const [aggResult] = await coll.aggregate(pipeline).toArray();
 
-    // 1️⃣ Collect all possible values from full dataset (data)
-    const allValues = new Set<string>();
-    data.forEach((item) => {
-      const val = item[field];
-      if (val) allValues.add(String(val).toLowerCase());
-    });
+    const data = aggResult?.data || [];
+    const total = aggResult?.totalCount?.[0]?.count || 0;
 
-    // 2️⃣ Count from filtered dataset
-    filtered.forEach((item) => {
-      const val = item[field];
-      if (!val) return;
-      const key = String(val).toLowerCase();
-      counts[key] = (counts[key] || 0) + 1;
-    });
+    // Transform filters to FilterOptions
+    const filterOptions: FilterOptions = {};
+    for (const field of filterableFields) {
+      const fieldAgg = aggResult?.[field] || [];
+      filterOptions[field] = fieldAgg.map((item: any) => ({
+        value: String(item.value).toLowerCase(),
+        count: item.count,
+      }));
+    }
 
-    // 3️⃣ Build final filter options: values from allValues, counts from filtered
-    const values: FilterValue[] = Array.from(allValues).map((value) => ({
-      value,
-      count: counts[value] || 0, // show 0 if not in filtered results
-    }));
+    return {
+      data,
+      filters: filterOptions,
+      meta: {
+        total,
+        page: Number(page),
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    };
+  },
 
-    if (values.length > 0) filterOptions[field] = values;
-  }
+  // ----------------------------
+  // 2️⃣ Fetch single document
+  // ----------------------------
+  single: async <T>(collection: string, identifier: string): Promise<T> => {
+    const client = await connectToDatabase();
+    const db = client.db("pure-honey");
+    const coll = db.collection(collection);
 
-  return {
-    data: paginated,
-    filters: filterOptions,
-    meta: {
-      total,
-      page: Number(page),
-      limit: Number(limit),
-      totalPages: Math.ceil(total / Number(limit)),
-    },
-  };
-}
+    // Query by slug or custom IDs
+    const query = {
+      $or: [{ slug: identifier }, { id: identifier }],
+    };
 
+    const doc = await coll.findOne(query, { projection: { _id: 0 } });
+
+    if (!doc) {
+      throw new Error(
+        `${collection} with identifier "${identifier}" not found`
+      );
+    }
+
+    return doc as T;
+  },
+};
+
+// ----------------------------
+// Helpers
+// ----------------------------
 function getSearchableFields(collection: string) {
   switch (collection) {
     case "users":
       return ["name", "email"];
     case "products":
-      return ["name", "type", "category"];
+      return ["productName", "category", "slug", "tags"];
     case "blogs":
-      return ["title", "content"];
+      return ["title", "content", "slug", "tags"];
     default:
       return [];
   }
@@ -144,9 +167,16 @@ function getFilterableFields(collection: string) {
     case "users":
       return ["role"];
     case "products":
-      return ["weight", "availability", "type", "badge", "price"];
+      return [
+        "availability",
+        "category",
+        "tags",
+        "featured",
+        "isOnSale",
+        "price",
+      ];
     case "blogs":
-      return ["category"];
+      return ["category", "tags"];
     case "reviews":
       return ["rating", "verified"];
     default:

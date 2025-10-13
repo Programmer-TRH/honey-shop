@@ -5,28 +5,28 @@ import {
   getProducts,
   getRelatedProducts,
 } from "@/services/product-services";
+import { Product } from "@/types/product";
 
 export const revalidate = 60;
 
-// Generate static params for all blog posts
 export async function generateStaticParams() {
   const products = await getProducts();
-  const productID = products.data.map((product) => ({
-    productId: product.id.toString(),
+  const slug = products.data.map((product: Product) => ({
+    slug: product.slug,
   }));
-  console.log("Product ID:", productID);
-  return productID;
+  console.log("slug:", slug);
+  return slug;
 }
 
 export default async function ProductPage({
   params,
 }: {
-  params: { productId: string } | Promise<{ productId: string }>;
+  params: { slug: string } | Promise<{ slug: string }>;
 }) {
   const resolvedParams = params instanceof Promise ? await params : params;
-  const { productId } = resolvedParams;
+  const { slug } = resolvedParams;
 
-  const currentProduct = await getProduct(productId);
+  const currentProduct = await getProduct(slug);
   const data = await getRelatedProducts({ currentProduct });
 
   return (

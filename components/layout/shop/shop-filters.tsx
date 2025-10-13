@@ -397,7 +397,7 @@ export function ShopFilters({ filters }: FiltersProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {filters.badge.map(({ value, count }) => (
+          {filters?.badge?.map(({ value, count }) => (
             <div key={value} className="flex items-center space-x-2">
               <Checkbox
                 id={value}
@@ -436,7 +436,7 @@ export function ShopFilters({ filters }: FiltersProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {weights.map(({ value, count }) => (
+          {weights?.map(({ value, count }) => (
             <div key={value} className="flex items-center space-x-2">
               <Checkbox
                 id={value}
@@ -466,7 +466,7 @@ export function ShopFilters({ filters }: FiltersProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {types.map(({ value, count }) => (
+          {types?.map(({ value, count }) => (
             <div key={value} className="flex items-center space-x-2">
               <Checkbox
                 id={value}

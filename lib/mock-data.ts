@@ -748,3 +748,157 @@ Bangladeshi honey producers maintain high quality standards, ensuring pure, natu
     },
   ],
 };
+
+import {
+  DollarSign,
+  ShoppingCart,
+  Users,
+  Package,
+  RefreshCw,
+  Monitor,
+  Laptop,
+  Headphones,
+} from "lucide-react";
+
+export const statsData = {
+  topStats: [
+    {
+      title: "Total Sales",
+      value: "$847.2K",
+      change: "+12.5% from last month",
+      trend: "up" as const,
+      icon: DollarSign,
+      iconColor: "text-green-600",
+      iconBg: "bg-green-50 dark:bg-green-950",
+    },
+    {
+      title: "Total Orders",
+      value: "2,847",
+      change: "+8.2% from last month",
+      trend: "up" as const,
+      icon: ShoppingCart,
+      iconColor: "text-blue-600",
+      iconBg: "bg-blue-50 dark:bg-blue-950",
+    },
+    {
+      title: "Customers",
+      value: "1,247",
+      change: "+16.3% from last month",
+      trend: "up" as const,
+      icon: Users,
+      iconColor: "text-purple-600",
+      iconBg: "bg-purple-50 dark:bg-purple-950",
+    },
+  ],
+  bottomStats: [
+    {
+      title: "Pending Orders",
+      value: "47",
+      change: "Needs attention",
+      trend: "neutral" as const,
+      icon: Package,
+      iconColor: "text-yellow-600",
+      iconBg: "bg-yellow-50 dark:bg-yellow-950",
+    },
+    {
+      title: "Returns",
+      value: "23",
+      change: "-2.1% from last month",
+      trend: "down" as const,
+      icon: RefreshCw,
+      iconColor: "text-red-600",
+      iconBg: "bg-red-50 dark:bg-red-950",
+    },
+  ],
+};
+
+export const salesTrendData = [
+  { day: "Mon", thisWeek: 75, lastWeek: 60 },
+  { day: "Tue", thisWeek: 85, lastWeek: 70 },
+  { day: "Wed", thisWeek: 95, lastWeek: 80 },
+  { day: "Thu", thisWeek: 105, lastWeek: 90 },
+  { day: "Fri", thisWeek: 115, lastWeek: 95 },
+  { day: "Sat", thisWeek: 125, lastWeek: 100 },
+  { day: "Sun", thisWeek: 135, lastWeek: 105 },
+];
+
+export const ordersData = [
+  {
+    id: "#ORD-2024-001",
+    customer: "John Smith",
+    avatar: "JS",
+    amount: "$299.99",
+    status: "Completed",
+    statusColor:
+      "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300",
+  },
+  {
+    id: "#ORD-2024-002",
+    customer: "Emma Davis",
+    avatar: "ED",
+    amount: "$159.50",
+    status: "Pending",
+    statusColor:
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300",
+  },
+  {
+    id: "#ORD-2024-003",
+    customer: "Michael Brown",
+    avatar: "MB",
+    amount: "$89.99",
+    status: "Processing",
+    statusColor:
+      "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300",
+  },
+  {
+    id: "#ORD-2024-004",
+    customer: "Sarah Wilson",
+    avatar: "SW",
+    amount: "$449.00",
+    status: "Completed",
+    statusColor:
+      "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300",
+  },
+  {
+    id: "#ORD-2024-005",
+    customer: "David Lee",
+    avatar: "DL",
+    amount: "$199.99",
+    status: "Pending",
+    statusColor:
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300",
+  },
+];
+
+export const lowStockItemsData = [
+  {
+    name: "iPhone 15 Pro Max",
+    stock: "Only 3 left in stock",
+    icon: Monitor,
+    urgent: true,
+  },
+  {
+    name: "MacBook Air M2",
+    stock: "Only 7 left in stock",
+    icon: Laptop,
+    urgent: false,
+  },
+  {
+    name: "AirPods Pro",
+    stock: "Only 2 left in stock",
+    icon: Headphones,
+    urgent: true,
+  },
+  {
+    name: 'iPad Pro 12.9"',
+    stock: "Only 5 left in stock",
+    icon: Monitor,
+    urgent: false,
+  },
+  {
+    name: 'iMac 24" M1',
+    stock: "Only 1 left in stock",
+    icon: Monitor,
+    urgent: true,
+  },
+];

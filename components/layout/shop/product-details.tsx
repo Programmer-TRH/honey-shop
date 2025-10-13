@@ -26,8 +26,8 @@ import {
 import { getProductReviews } from "@/actions/data-actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Product } from "@/lib/mock-data";
 import Image from "next/image";
+import { Product } from "@/types/product";
 
 export function ProductDetails({ product }: { product: Product }) {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -110,7 +110,7 @@ export function ProductDetails({ product }: { product: Product }) {
           Shop
         </Link>
         <span className="mx-2">/</span>
-        <span className="text-foreground">{product.name}</span>
+        <span className="text-foreground">{product.productName}</span>
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -121,12 +121,12 @@ export function ProductDetails({ product }: { product: Product }) {
               width={400}
               height={400}
               src={product.images[selectedImage] || "/placeholder.svg"}
-              alt={product.name}
+              alt={product.productName}
               className="relative z-10 max-w-full h-auto"
             />
-            {product.badge && (
+            {product.tags && (
               <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground">
-                {product.badge}
+                {product.tags}
               </Badge>
             )}
           </div>
@@ -144,7 +144,7 @@ export function ProductDetails({ product }: { product: Product }) {
                   width={400}
                   height={400}
                   src={image || "/placeholder.svg"}
-                  alt={`${product.name} view ${index + 1}`}
+                  alt={`${product.productName} view ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
               </button>
@@ -159,7 +159,7 @@ export function ProductDetails({ product }: { product: Product }) {
                 <Star
                   key={i}
                   className={`h-4 w-4 ${
-                    i < Math.floor(product.rating)
+                    i < Math.floor(product?.rating!)
                       ? "fill-primary text-primary"
                       : "text-muted-foreground/30"
                   }`}
@@ -167,13 +167,13 @@ export function ProductDetails({ product }: { product: Product }) {
               ))}
             </div>
             <span className="text-sm text-muted-foreground">
-              {product.rating} ({product.reviews} reviews)
+              {product.rating} ({product?.totalReviews} reviews)
             </span>
           </div>
 
           <div>
             <h1 className="font-serif text-3xl font-bold text-foreground mb-2 text-balance">
-              {product.name}
+              {product.productName}
             </h1>
             <p className="text-lg text-muted-foreground">{product.weight}</p>
           </div>
@@ -195,7 +195,7 @@ export function ProductDetails({ product }: { product: Product }) {
           </div>
 
           <p className="text-muted-foreground leading-relaxed">
-            {product.description}
+            {product.shortDescription}
           </p>
 
           <div className="grid grid-cols-3 gap-4">
@@ -287,8 +287,7 @@ export function ProductDetails({ product }: { product: Product }) {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            Free delivery in Dhaka • Cash on Delivery available • 100%
-            satisfaction guarantee
+            • Cash on Delivery available • 100% satisfaction guarantee
           </p>
         </div>
       </div>
@@ -296,8 +295,10 @@ export function ProductDetails({ product }: { product: Product }) {
       <Tabs defaultValue="description" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="description">Description</TabsTrigger>
-          <TabsTrigger value="nutrition">Nutritional Info</TabsTrigger>
-          <TabsTrigger value="reviews">Reviews ({product.reviews})</TabsTrigger>
+          <TabsTrigger value="nutrition">Source & Origin</TabsTrigger>
+          <TabsTrigger value="reviews">
+            Reviews ({product.totalReviews})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="description" className="mt-6">
@@ -306,15 +307,13 @@ export function ProductDetails({ product }: { product: Product }) {
               <h3 className="font-semibold text-lg text-foreground mb-4">
                 Product Description
               </h3>
-              <p className="text-muted-foreground leading-relaxed mb-6">
-                {product.description}
-              </p>
+              <div></div>
 
               <h4 className="font-semibold text-foreground mb-3">
                 Health Benefits
               </h4>
               <ul className="space-y-2">
-                {product.benefits.map((benefit, index) => (
+                {product?.benefits?.map((benefit, index) => (
                   <li
                     key={index}
                     className="flex items-start space-x-2 text-muted-foreground"
@@ -335,17 +334,21 @@ export function ProductDetails({ product }: { product: Product }) {
                 Nutritional Information
               </h3>
               <div className="grid grid-cols-2 gap-4">
-                {Object.entries(product.nutritionalInfo).map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="flex justify-between items-center p-3 bg-muted/30 rounded-lg"
-                  >
-                    <span className="text-foreground capitalize">
-                      {key.replace(/([A-Z])/g, " $1")}
-                    </span>
-                    <span className="font-semibold text-primary">{value}</span>
-                  </div>
-                ))}
+                {/* {Object?.entries(product?.nutritionalInfo).map(
+                  ([key, value]) => (
+                    <div
+                      key={key}
+                      className="flex justify-between items-center p-3 bg-muted/30 rounded-lg"
+                    >
+                      <span className="text-foreground capitalize">
+                        {key.replace(/([A-Z])/g, " $1")}
+                      </span>
+                      <span className="font-semibold text-primary">
+                        {value}
+                      </span>
+                    </div>
+                  )
+                )} */}
               </div>
               <p className="text-sm text-muted-foreground mt-4">
                 * Values are approximate and may vary based on natural
@@ -360,7 +363,7 @@ export function ProductDetails({ product }: { product: Product }) {
             productId={product.id}
             initialReviews={productReviews}
             averageRating={product.rating}
-            totalReviews={product.reviews}
+            totalReviews={product.totalReviews}
           />
         </TabsContent>
       </Tabs>

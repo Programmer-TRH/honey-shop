@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import { success } from "zod";
 
 export interface CartItem {
   id: number;
@@ -60,48 +61,50 @@ function calculateCartTotals(items: CartItem[]): {
   return { total, itemCount };
 }
 
-export async function addToCart(productId: number, quantity = 1) {
-  try {
-    const product = mockProducts.find((p) => p.id === productId);
-    if (!product) {
-      return { success: false, error: "Product not found" };
-    }
+export async function addToCart(id: string, quantity = 1) {
+  // try {
+  //   const product = mockProducts.find((p) => p.id === productId);
+  //   if (!product) {
+  //     return { success: false, error: "Product not found" };
+  //   }
 
-    const cart = await getCart();
-    const existingItemIndex = cart.items.findIndex(
-      (item) => item.productId === productId
-    );
+  //   const cart = await getCart();
+  //   const existingItemIndex = cart.items.findIndex(
+  //     (item) => item.productId === productId
+  //   );
 
-    if (existingItemIndex >= 0) {
-      // Update existing item quantity
-      cart.items[existingItemIndex].quantity += quantity;
-    } else {
-      // Add new item to cart
-      const newItem: CartItem = {
-        id: Date.now(), // Simple ID generation
-        productId: product.id,
-        name: product.name,
-        price: product.price,
-        weight: product.weight,
-        image: product.images[0] || "/placeholder.svg",
-        quantity,
-      };
-      cart.items.push(newItem);
-    }
+  //   if (existingItemIndex >= 0) {
+  //     // Update existing item quantity
+  //     cart.items[existingItemIndex].quantity += quantity;
+  //   } else {
+  //     // Add new item to cart
+  //     const newItem: CartItem = {
+  //       id: Date.now(), // Simple ID generation
+  //       productId: product.id,
+  //       name: product.name,
+  //       price: product.price,
+  //       weight: product.weight,
+  //       image: product.images[0] || "/placeholder.svg",
+  //       quantity,
+  //     };
+  //     cart.items.push(newItem);
+  //   }
 
-    // Recalculate totals
-    const { total, itemCount } = calculateCartTotals(cart.items);
-    cart.total = total;
-    cart.itemCount = itemCount;
+  //   // Recalculate totals
+  //   const { total, itemCount } = calculateCartTotals(cart.items);
+  //   cart.total = total;
+  //   cart.itemCount = itemCount;
 
-    await saveCart(cart);
-    revalidatePath("/cart");
+  //   await saveCart(cart);
+  //   revalidatePath("/cart");
 
-    return { success: true, cart };
-  } catch (error) {
-    console.error("Error adding to cart:", error);
-    return { success: false, error: "Failed to add item to cart" };
-  }
+  //   return { success: true, cart };
+  // } catch (error) {
+  //   console.error("Error adding to cart:", error);
+  //   return { success: false, error: "Failed to add item to cart" };
+  // }
+  console.log("ProductId", id, quantity);
+  return { success: true, message: "Product Add to cart Successfull." };
 }
 
 export async function updateCartItem(itemId: number, quantity: number) {

@@ -17,9 +17,8 @@ export interface Product {
   productName: string;
   slug: string;
   sku: string;
-  barcode?: string;
   category: string;
-  badge?: string;
+  weight: string;
   featured: boolean;
   shortDescription: string;
   descriptionJson: Record<string, any>;
@@ -61,7 +60,7 @@ export interface Product {
   isOnSale?: boolean;
 
   // DB-related
-  productId?: string;
+  id: string;
   createdAt?: Date | { $date: string };
   updatedAt?: Date | { $date: string };
 }

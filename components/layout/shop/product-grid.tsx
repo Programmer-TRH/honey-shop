@@ -1,8 +1,8 @@
 import Paggination from "@/components/shared/paggination";
-import { Product } from "@/lib/mock-data";
 import ProductCard from "@/components/shared/product-card";
 import { Truck } from "lucide-react";
 import { ProductSort } from "./product-sort";
+import { Product } from "@/types/product";
 
 interface ProductGridProps {
   products: Product[];

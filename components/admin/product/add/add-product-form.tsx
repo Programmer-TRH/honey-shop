@@ -1,6 +1,5 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,22 +9,24 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, ArrowRight, Check, Save, Send } from "lucide-react";
 import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
-import { BasicInformation } from "./basic-information";
-import { ProductMedia } from "./product-media";
+import { BasicInformation } from "./steps/basic-information";
+import { ProductMedia } from "./steps/product-media";
 import { toast } from "sonner";
-import { PricingInventory } from "./pricing-inventory";
-import { SourceOrigin } from "./source-origin";
-import { DeliveryPolicy } from "./delevery-policy";
-import { ReviewStep } from "./review-step";
-import { ProductOrganization } from "./product-organization";
-import { SeoSettings } from "./seo-settings";
+import { PricingInventory } from "./steps/pricing-inventory";
+import { SourceOrigin } from "./steps/source-origin";
+import { DeliveryPolicy } from "./steps/delevery-policy";
+import { ReviewStep } from "./steps/review-step";
+import { ProductOrganization } from "./steps/product-organization";
+import { SeoSettings } from "./steps/seo-settings";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { addProduct } from "@/actions/product-actions";
+import { addProductAction } from "@/actions/product-actions";
 import { Product } from "@/types/product";
+import AddProductTite from "./add-product-tite";
+import AddProductNavigation from "./add-product-navigation";
+import AddProuductStepNavigation from "./add-prouduct-step-navigation";
 
 const steps = [
   {
@@ -115,7 +116,6 @@ const steps = [
 export default function AddProductForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [isDraft, setIsDraft] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { state } = useSidebar();
 
@@ -125,7 +125,6 @@ export default function AddProductForm() {
       productName: "",
       slug: "",
       sku: "",
-      barcode: "",
       category: "",
       featured: false,
       shortDescription: "",
@@ -239,7 +238,6 @@ export default function AddProductForm() {
     toast.error("You must complete the previous step first");
   };
 
-  // Handle next step
   const handleNext = async () => {
     const stepCompleted = isStepCompleted(currentStep);
 
@@ -293,25 +291,19 @@ export default function AddProductForm() {
 
     try {
       const formData = form.watch();
-      const result = await addProduct(formData);
+      const result = await addProductAction(formData);
 
-      if (!result.success) {
-        toast.error(result.message);
+      if (!result?.success) {
+        toast.error(result?.message);
         return;
       }
 
-      if (isDraft) {
-        toast.success("Draft saved successfully!", {
-          description: "Your product has been saved as a draft.",
-        });
-      } else {
-        toast.success("Product published successfully!", {
-          description: "Your product is now live and visible to customers.",
-        });
-      }
+      toast.success("Product published successfully!", {
+        description: "Your product is now live and visible to customers.",
+      });
     } catch (error) {
-      console.error("Submission error:", error);
-      toast.error("Something went wrong!", {
+      console.log("Submission error:", error);
+      toast.error(`Something went wrong! ${error}`, {
         description: "Please try again or contact support.",
       });
     } finally {
@@ -319,39 +311,15 @@ export default function AddProductForm() {
     }
   };
 
-  const handleSaveAsDraft = async () => {
-    setIsDraft(true);
-    await form.handleSubmit(onSubmit)();
-  };
-
-  const handlePublish = async () => {
-    setIsDraft(false);
-    await form.handleSubmit(onSubmit)();
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Title Section */}
-      <div className="flex items-center justify-between px-4 md:px-6 py-3">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-slate-900">
-              Add New Product
-            </h1>
-            <p className="text-sm text-slate-600 mt-1">
-              Create a new product for your store • {completedStepsCount}/
-              {totalSteps} steps completed
-            </p>
-          </div>
-        </div>
-
-        <Badge variant="outline" className="px-3 py-1 hidden sm:flex">
-          Step {currentStep} of {steps.length}
-        </Badge>
-      </div>
+      <AddProductTite
+        completedStepsCount={completedStepsCount}
+        steps={steps}
+        totalSteps={totalSteps}
+        currentStep={currentStep}
+      />
 
       <div
         className={cn(
@@ -372,55 +340,12 @@ export default function AddProductForm() {
 
         {/* Steps Navigation */}
         <div className="pb-4 overflow-hidden w-full px-4 md:px-0">
-          <div
-            className={cn(
-              "overflow-auto w-full mx-auto ",
-              state === "collapsed"
-                ? "md:w-[calc(100vw-var(--sidebar-width-icon)-4rem)]"
-                : "md:w-[calc(100vw-var(--sidebar-width)-4rem)]"
-            )}
-          >
-            <div className="flex space-x-2 pb-2">
-              {steps.map((step, index) => {
-                const isActive = currentStep === step.id;
-                const isCompleted = completedSteps.includes(step.id);
-                const isAccessible =
-                  step.id <= currentStep ||
-                  completedSteps.includes(step.id - 1);
-
-                return (
-                  <React.Fragment key={index}>
-                    <button
-                      onClick={() => handleStepClick(step.id)}
-                      disabled={!isAccessible}
-                      className={`flex-shrink-0 flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-                        isActive
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : isCompleted
-                          ? "bg-green-100 text-green-700 hover:bg-green-200"
-                          : isAccessible
-                          ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                          : "bg-slate-50 text-slate-400 cursor-not-allowed"
-                      }`}
-                    >
-                      <div
-                        className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                          isActive
-                            ? "bg-primary-foreground text-primary"
-                            : isCompleted
-                            ? "bg-green-600 text-white"
-                            : "bg-slate-300 text-slate-600"
-                        }`}
-                      >
-                        {isCompleted ? <Check className="h-3 w-3" /> : step.id}
-                      </div>
-                      <span>{step.title}</span>
-                    </button>
-                  </React.Fragment>
-                );
-              })}
-            </div>
-          </div>
+          <AddProuductStepNavigation
+            currentStep={currentStep}
+            completedSteps={completedSteps}
+            handleStepClick={handleStepClick}
+            state={state}
+          />
         </div>
       </div>
 
@@ -462,59 +387,12 @@ export default function AddProductForm() {
 
             {/* Navigation */}
             <div className="border-t border-slate-200 px-6 py-4 bg-slate-50">
-              <div className="flex items-center justify-between">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handlePrevious}
-                  disabled={currentStep === 1 || isSubmitting}
-                  className="flex items-center"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span className="hidden sm:block">Previous</span>
-                  <span className="sm:hidden">Prev</span>
-                </Button>
-
-                <div className="flex items-center space-x-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleSaveAsDraft}
-                    disabled={isSubmitting}
-                    className="flex items-center"
-                  >
-                    <Save className="h-4 w-4" />
-                    <span className="hidden sm:block">Save as Draft</span>
-                  </Button>
-
-                  {currentStep === steps.length ? (
-                    <Button
-                      type="button"
-                      onClick={handlePublish}
-                      disabled={isSubmitting}
-                      className="flex items-center"
-                    >
-                      <Send className="h-4 w-4" />
-                      <span className="hidden sm:block">
-                        {isSubmitting ? "Publishing..." : "Publish Product"}
-                      </span>
-                      <span className="sm:hidden">
-                        {isSubmitting ? "Publishing..." : "Publish"}
-                      </span>
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      onClick={handleNext}
-                      disabled={isSubmitting}
-                      className="flex items-center space-x-2"
-                    >
-                      <span>Next</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
+              <AddProductNavigation
+                handleNext={handleNext}
+                handlePrevious={handlePrevious}
+                currentStep={currentStep}
+                isSubmitting={isSubmitting}
+              />
             </div>
           </Card>
         </form>
