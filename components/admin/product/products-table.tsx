@@ -111,7 +111,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((product) => {
+              {products?.map((product) => {
                 const stockStatus = getStockStatus(product.stock);
                 return (
                   <TableRow key={product.id}>

@@ -18,7 +18,7 @@ export default async function Products() {
   });
 
   const productData = await res.json();
-  const { data: products, meta, filters } = productData as ProductProps;
+  const { data, meta, filters } = productData as ProductProps;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -28,9 +28,7 @@ export default async function Products() {
           <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">
             Products
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {products.length} products
-          </p>
+          <p className="mt-1 text-sm text-gray-500">{data.length} products</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" className="gap-2 bg-transparent">
@@ -57,7 +55,7 @@ export default async function Products() {
       <ProductTableToolbar filters={filters} />
 
       {/* Products Table */}
-      <ProductsTable products={products} />
+      <ProductsTable products={data} />
     </div>
   );
 }

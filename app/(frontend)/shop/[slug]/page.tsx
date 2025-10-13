@@ -7,7 +7,7 @@ import {
 } from "@/services/product-services";
 import { Product } from "@/types/product";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const products = await getProducts();

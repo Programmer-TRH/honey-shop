@@ -19,7 +19,7 @@ import {
   getRelatedBlogPosts,
 } from "@/services/blog-service";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 // Generate static params for all blog posts
 export async function generateStaticParams() {
