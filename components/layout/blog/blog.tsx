@@ -5,6 +5,7 @@ import { BlogPost } from "@/actions/data-actions";
 import LoadingSkeleton from "@/components/skeleton/loading-skeleton";
 import { useSearchParams } from "next/navigation";
 import { useCache } from "@/hooks/useCache";
+import { toast } from "sonner";
 
 interface Meta {
   total: number;
@@ -35,6 +36,10 @@ export default function Blog({ initialBlogs }: { initialBlogs: BlogProps }) {
     url: "/api/custom/blogs",
     query,
   });
+
+  if (!blogs?.data?.length) {
+    toast.warning("No Blogs found.");
+  }
 
   return (
     <>

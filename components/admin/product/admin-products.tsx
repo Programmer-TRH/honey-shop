@@ -17,7 +17,6 @@ export default async function AdminProducts() {
   });
   const productData = await res.json();
 
-  // const productData = await dataService.list("products");
   console.log("Product Data:", productData);
 
   const { data, meta, filters } = productData;
