@@ -60,16 +60,58 @@ export const dataService = {
     const skip = (Number(page) - 1) * Number(limit);
     const limitNum = Number(limit);
 
+    // 🧮 Dynamic filter facets (optimized)
     const filterFacets = filterableFields.reduce((acc: any, field) => {
       acc[field] = [
-        { $group: { _id: `$${field}`, count: { $sum: 1 } } },
+        // ✅ Normalize both array & string values
+        {
+          $project: {
+            value: {
+              $cond: [
+                { $isArray: `$${field}` },
+                {
+                  $map: {
+                    input: `$${field}`,
+                    as: "val",
+                    in: {
+                      $trim: { input: { $toLower: "$$val" } },
+                    },
+                  },
+                },
+                {
+                  $trim: {
+                    input: {
+                      $toLower: {
+                        $ifNull: [`$${field}`, "unknown"],
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+        // ✅ Unwind only if it's an array
+        {
+          $unwind: {
+            path: "$value",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $group: {
+            _id: "$value",
+            count: { $sum: 1 },
+          },
+        },
         {
           $project: {
             _id: 0,
-            value: { $ifNull: ["$_id", "unknown"] },
+            value: "$_id",
             count: 1,
           },
         },
+        { $sort: { count: -1 } },
       ];
       return acc;
     }, {});
@@ -167,14 +209,7 @@ function getFilterableFields(collection: string) {
     case "users":
       return ["role"];
     case "products":
-      return [
-        "availability",
-        "category",
-        "tags",
-        "featured",
-        "isOnSale",
-        "price",
-      ];
+      return ["availability", "category", "tags"];
     case "blogs":
       return ["category", "tags"];
     case "reviews":

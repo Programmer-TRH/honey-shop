@@ -22,7 +22,6 @@ export async function isAuthenticated(req?: NextRequest): Promise<AuthResult> {
   try {
     let session = accessToken ? await decrypt(accessToken) : null;
 
-    // if no access token but refresh token exists → try rotating
     if (!session && refreshToken) {
       const refreshed = await updateToken();
       accessToken = refreshed?.cookies.get("access_token")?.value;
@@ -35,7 +34,6 @@ export async function isAuthenticated(req?: NextRequest): Promise<AuthResult> {
 
     return { isAuth: true, userId: session.userId, role: session.role };
   } catch (err) {
-    console.error("isAuthenticated error:", err);
     return { isAuth: false, userId: null, role: null };
   }
 }

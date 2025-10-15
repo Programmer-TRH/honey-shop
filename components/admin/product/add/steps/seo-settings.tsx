@@ -405,7 +405,7 @@ export function SeoSettings({ form }: SeoSettingsProps) {
         </div>
       </div>
 
-      {/* URL Slug */}
+      {/* SEO URL & Slug */}
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <Label htmlFor="slug">

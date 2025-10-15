@@ -3,7 +3,6 @@ import { Plus, Upload, Download } from "lucide-react";
 import Link from "next/link";
 import ProductsTable from "./products-table";
 import ProductTableToolbar from "./product-table-toolbar";
-import { dataService } from "@/services/data-service";
 
 export const revalidate = 3600;
 
@@ -16,10 +15,8 @@ export default async function AdminProducts() {
     },
   });
   const productData = await res.json();
-
-  console.log("Product Data:", productData);
-
   const { data, meta, filters } = productData;
+  console.log("Filters:", filters);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -56,7 +53,7 @@ export default async function AdminProducts() {
       <ProductTableToolbar filters={filters} />
 
       {/* Products Table */}
-      <ProductsTable products={data} />
+      <ProductsTable products={data} meta={meta} />
     </div>
   );
 }

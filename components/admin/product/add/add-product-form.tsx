@@ -11,15 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
-import { BasicInformation } from "./steps/basic-information";
-import { ProductMedia } from "./steps/product-media";
 import { toast } from "sonner";
-import { PricingInventory } from "./steps/pricing-inventory";
-import { SourceOrigin } from "./steps/source-origin";
-import { DeliveryPolicy } from "./steps/delevery-policy";
-import { ReviewStep } from "./steps/review-step";
-import { ProductOrganization } from "./steps/product-organization";
-import { SeoSettings } from "./steps/seo-settings";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { addProductAction } from "@/actions/product-actions";
@@ -27,93 +19,22 @@ import { Product } from "@/types/product";
 import AddProductTite from "./add-product-tite";
 import AddProductNavigation from "./add-product-navigation";
 import AddProuductStepNavigation from "./add-prouduct-step-navigation";
+import { steps } from "./steps/steps-config";
 
-const steps = [
-  {
-    id: 1,
-    title: "Basic Info",
-    fullTitle: "Basic Information",
-    description: "Product name, category, and description",
-    component: BasicInformation,
-    requiredFields: [
-      "productName",
-      "category",
-      "shortDescription",
-      "descriptionJson",
-      "descriptionHtml",
-    ],
-  },
-  {
-    id: 2,
-    title: "Media",
-    fullTitle: "Product Media",
-    description: "Upload and manage product images",
-    component: ProductMedia,
-    requiredFields: ["images"],
-  },
-  {
-    id: 3,
-    title: "Pricing & Inventory",
-    fullTitle: "Pricing and Inventory",
-    description: "Set prices, stock levels, and product availability",
-    component: PricingInventory,
-    requiredFields: [
-      "costPrice",
-      "price",
-      "availability",
-      "stock",
-      "lowStockThreshold",
-      "sku",
-    ],
-  },
-  {
-    id: 4,
-    title: "Source & Origin",
-    fullTitle: "Product Source Information",
-    description: "Specify product origin, beekeeper, and harvest details",
-    component: SourceOrigin,
-    requiredFields: [
-      "source.region",
-      "source.beekeeper",
-      "sourceDetailsHtml",
-      "sourceDetailsJson",
-    ],
-  },
-  {
-    id: 5,
-    title: "Delivery & Policy",
-    fullTitle: "Delivery & Return Policy",
-    description: "Configure delivery charge and return options",
-    component: DeliveryPolicy,
-    requiredFields: ["delivery.charge"],
-  },
-  {
-    id: 6,
-    title: "Tags & Organization",
-    fullTitle: "Tags & Product Organization",
-    description: "Add tags and organize your products for better discovery",
-    component: ProductOrganization,
-    requiredFields: ["tags", "collections"],
-  },
-  {
-    id: 7,
-    title: "SEO",
-    fullTitle: "SEO & Metadata",
-    description: "Add SEO title, description, and keywords for search engines",
-    component: SeoSettings,
-    requiredFields: ["seo.title", "seo.description", "seo.url"],
-  },
-  {
-    id: 8,
-    title: "Review",
-    fullTitle: "Review & Publish",
-    description: "Review all details before publishing your product",
-    component: ReviewStep,
-    requiredFields: [],
-  },
-];
+interface FilterValue {
+  value: string;
+  count: number;
+}
 
-export default function AddProductForm() {
+interface FiltersProps {
+  filters: {
+    category: FilterValue[];
+    availability: FilterValue[];
+    tags: FilterValue[];
+  };
+}
+
+export default function AddProductForm({ filters }: FiltersProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -123,27 +44,27 @@ export default function AddProductForm() {
     defaultValues: {
       // Step 1: Basic Info
       productName: "",
-      slug: "",
-      sku: "",
       category: "",
+      tags: [],
       featured: false,
       shortDescription: "",
       descriptionJson: {},
       descriptionHtml: "",
 
-      // Step 3: Media
+      // Step 2: Media
       images: [],
 
-      // Step 4: Pricing & Inventory
+      // Step 3: Pricing & Inventory
       costPrice: 0,
       price: 0,
       originalPrice: undefined,
       discountPercentage: undefined,
+      sku: "",
       availability: "in-stock",
       stock: 0,
       lowStockThreshold: undefined,
 
-      // Step 5: Source & Origin
+      // Step 4: Source & Origin
       source: {
         region: "",
         harvestSeason: "",
@@ -152,7 +73,7 @@ export default function AddProductForm() {
       sourceDetailsJson: {},
       sourceDetailsHtml: "",
 
-      // Step 6: Delivery & Policies
+      // Step 5: Delivery & Policies
       delivery: {
         charge: 0,
         estimatedDays: undefined,
@@ -161,7 +82,7 @@ export default function AddProductForm() {
       returnPolicyHtml: "",
       returnPolicyJson: {},
 
-      // Step 7: SEO
+      // Step 6: SEO
       seo: {
         title: "",
         description: "",
@@ -169,20 +90,25 @@ export default function AddProductForm() {
         keywords: [],
         ogImage: "",
       },
-      tags: [],
+      slug: "",
 
       // Optional (Marketing / Future)
       rating: undefined,
       totalReviews: undefined,
-      isOnSale: false,
     },
   });
 
-  // Find current step component
   const currentStepData = steps.find((step) => step.id === currentStep);
   const CurrentStepComponent = currentStepData?.component;
+  const totalSteps = steps.filter((step) => step.title !== "Review").length;
+  const completedStepsCount = completedSteps.filter((stepId) => {
+    const step = steps.find((s) => s.id === stepId);
+    return step?.title !== "Review";
+  }).length;
+  const progressPercentage = Math.round(
+    (completedStepsCount / totalSteps) * 100
+  );
 
-  // Check if step is completed based on required fields
   const isStepCompleted = useCallback(
     (stepId: number) => {
       const step = steps.find((s) => s.id === stepId);
@@ -204,7 +130,6 @@ export default function AddProductForm() {
     [form]
   );
 
-  // Handle step click
   const handleStepClick = (stepId: number) => {
     const step = steps.find((s) => s.id === stepId);
     if (!step) return;
@@ -268,23 +193,11 @@ export default function AddProductForm() {
     }
   };
 
-  // Handle previous step
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
-
-  // Progress percentage excluding Review step
-  const totalSteps = steps.filter((step) => step.title !== "Review").length;
-  const completedStepsCount = completedSteps.filter((stepId) => {
-    const step = steps.find((s) => s.id === stepId);
-    return step?.title !== "Review";
-  }).length;
-
-  const progressPercentage = Math.round(
-    (completedStepsCount / totalSteps) * 100
-  );
 
   const onSubmit = async () => {
     setIsSubmitting(true);
@@ -302,7 +215,6 @@ export default function AddProductForm() {
         description: "Your product is now live and visible to customers.",
       });
     } catch (error) {
-      console.log("Submission error:", error);
       toast.error(`Something went wrong! ${error}`, {
         description: "Please try again or contact support.",
       });
@@ -382,7 +294,13 @@ export default function AddProductForm() {
             </CardHeader>
             <Separator />
             <CardContent className="pt-6">
-              {CurrentStepComponent && <CurrentStepComponent form={form} />}
+              {CurrentStepComponent && (
+                <CurrentStepComponent
+                  form={form}
+                  allCategory={filters.category}
+                  allTag={filters.tags}
+                />
+              )}
             </CardContent>
 
             {/* Navigation */}

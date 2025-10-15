@@ -1,4 +1,14 @@
 "use client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useSidebar } from "@/components/ui/sidebar";
 import {
   Table,
   TableBody,
@@ -17,6 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import {
   ChevronLeft,
@@ -27,11 +39,27 @@ import {
   Trash2,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState } from "react";
+import { toast } from "sonner";
+import Pagination from "@/components/shared/paggination";
 
-export default function ProductsTable({ products }: { products: Product[] }) {
-  console.log("Products:", products);
+interface Meta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export default function ProductsTable({
+  products,
+  meta,
+}: {
+  products: Product[];
+  meta: Meta;
+}) {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const { state } = useSidebar();
 
   const toggleSelectAll = () => {
     if (selectedProducts.length === products.length) {
@@ -67,6 +95,14 @@ export default function ProductsTable({ products }: { products: Product[] }) {
     return "bg-yellow-100 text-yellow-700 hover:bg-yellow-100";
   };
 
+  const handleProductDelete = (id: string) => {
+    try {
+      toast.success(`Delete Successfull. ${id}`);
+    } catch (error) {
+      toast.error("Deletion Failed");
+    }
+  };
+
   return (
     <>
       {selectedProducts.length > 0 && (
@@ -77,23 +113,48 @@ export default function ProductsTable({ products }: { products: Product[] }) {
               {selectedProducts.length > 1 ? "s" : ""} selected
             </span>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                Bulk Edit
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-red-600 hover:text-red-700 bg-transparent"
-              >
-                Delete Selected
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-red-600  bg-transparent"
+                  >
+                    Delete Selected
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-center mb-4">
+                      Confirm The delete process.
+                    </AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancle</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() =>
+                        toast.success(`${selectedProducts.length} Deleted. `)
+                      }
+                    >
+                      Confirm
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </Card>
       )}
 
       <Card>
-        <div className="overflow-x-auto">
+        <div
+          className={cn(
+            "overflow-auto mx-auto w-full",
+            state === "collapsed"
+              ? "md:w-[calc(100vw-var(--sidebar-width-icon)-6rem)]"
+              : "md:w-[calc(100vw-var(--sidebar-width)-6rem)]"
+          )}
+        >
           <Table>
             <TableHeader>
               <TableRow>
@@ -124,7 +185,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
                       />
                     </TableCell>
                     <TableCell className="font-medium text-gray-600">
-                      {product.id}
+                      {product.sku}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -141,7 +202,9 @@ export default function ProductsTable({ products }: { products: Product[] }) {
                             {product.productName}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {product.shortDescription}
+                            {product.shortDescription
+                              .slice(0, 30)
+                              .padEnd(33, ".")}
                           </div>
                         </div>
                       </div>
@@ -173,7 +236,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
                           {stockStatus.label}
                         </Badge>
                         <span className="text-sm text-gray-600">
-                          {product.stock}
+                          ({product.stock})
                         </span>
                       </div>
                     </TableCell>
@@ -190,12 +253,6 @@ export default function ProductsTable({ products }: { products: Product[] }) {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Edit className="h-4 w-4" />
-                        </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -207,10 +264,19 @@ export default function ProductsTable({ products }: { products: Product[] }) {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                            <DropdownMenuItem>Archive</DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash2 className="mr-2 h-4 w-4" />
+                            <DropdownMenuItem asChild>
+                              <Link
+                                className="flex gap-2 items-center"
+                                href="/admin/products/edit"
+                              >
+                                <Edit /> Edit
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() => handleProductDelete(product.id)}
+                            >
+                              <Trash2 />
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -225,40 +291,7 @@ export default function ProductsTable({ products }: { products: Product[] }) {
         </div>
 
         {/* Pagination */}
-        <div className="flex flex-col items-center justify-between gap-4 border-t p-4 sm:flex-row">
-          <p className="text-sm text-gray-600">
-            Showing 1 to {products.length} of {products.length} results
-          </p>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" disabled>
-              <ChevronLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Previous</span>
-            </Button>
-            <div className="flex gap-1">
-              <Button
-                variant="default"
-                size="sm"
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                1
-              </Button>
-              <Button variant="outline" size="sm">
-                2
-              </Button>
-              <Button variant="outline" size="sm">
-                3
-              </Button>
-              <span className="flex items-center px-2 text-gray-400">...</span>
-              <Button variant="outline" size="sm">
-                50
-              </Button>
-            </div>
-            <Button variant="outline" size="sm">
-              <span className="hidden sm:inline">Next</span>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        <Pagination totalPages={meta.totalPages} currentPage={meta.page} />
       </Card>
     </>
   );

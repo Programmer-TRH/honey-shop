@@ -29,7 +29,6 @@ export default function ProductTableToolbar({ filters }: FiltersProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All Categories");
   const [stockFilter, setStockFilter] = useState("All Stock");
-  const [statusFilter, setStatusFilter] = useState("All Status");
   return (
     <Card className="p-4">
       <div className="flex flex-col gap-4">
@@ -46,7 +45,7 @@ export default function ProductTableToolbar({ filters }: FiltersProps) {
           </div>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select Category" />
             </SelectTrigger>
             <SelectContent>
               {filters.category.map((cat) => (
@@ -58,7 +57,7 @@ export default function ProductTableToolbar({ filters }: FiltersProps) {
           </Select>
           <Select value={stockFilter} onValueChange={setStockFilter}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select Availabitly" />
             </SelectTrigger>
             <SelectContent>
               {filters.availability.map((filter) => (

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Save, Send } from "lucide-react";
+import { ArrowLeft, ArrowRight, Send } from "lucide-react";
 import React from "react";
 import { steps } from "./steps/steps-config";
 
@@ -30,7 +30,11 @@ export default function AddProductNavigation({
 
       <div className="flex items-center space-x-3">
         {currentStep === steps.length ? (
-          <Button disabled={isSubmitting} className="flex items-center">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex items-center"
+          >
             <Send className="h-4 w-4" />
             <span className="hidden sm:block">
               {isSubmitting ? "Publishing..." : "Publish Product"}

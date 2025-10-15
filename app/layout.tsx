@@ -6,6 +6,7 @@ import { Playfair_Display } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import "./globals.css";
+import { Toaster } from "sonner";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -33,6 +34,7 @@ export default function RootLayout({
       >
         <Suspense fallback={null}>{children}</Suspense>
         <Analytics />
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

@@ -22,7 +22,6 @@ export function DeliveryPolicy({ form }: DeliveryPolicyProps) {
   const { register, watch, setValue } = form;
   const freeDelivery = watch("delivery.freeDelivery");
 
-  // Auto-clear charge if free delivery is enabled
   useEffect(() => {
     if (freeDelivery) setValue("delivery.charge", 0);
   }, [freeDelivery, setValue]);

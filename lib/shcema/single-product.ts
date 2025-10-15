@@ -60,5 +60,4 @@ export const singleProductSchema = z.object({
   // Optional (for marketing/future)
   rating: z.number().min(0).max(5).optional(),
   totalReviews: z.number().int().nonnegative().optional(),
-  isOnSale: z.boolean().optional(),
 });
