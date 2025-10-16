@@ -60,7 +60,7 @@ export async function submitReview(formData: FormData) {
   }
 }
 
-export async function getProductReviews(productId: number) {
+export async function getProductReviews(productId: string) {
   // Simulate database query
   return reviews.filter((review) => review.productId === productId);
 }

@@ -54,7 +54,7 @@ async function saveWishlist(wishlist: Wishlist) {
 }
 
 // Add item to wishlist
-export async function addToWishlist(productId: number) {
+export async function addToWishlist(productId: string) {
   try {
     const product = mockData.products.find((p: Product) => p.id === productId);
     if (!product) {
@@ -99,7 +99,7 @@ export async function addToWishlist(productId: number) {
 }
 
 // Remove item from wishlist
-export async function removeFromWishlist(productId: number) {
+export async function removeFromWishlist(productId: string) {
   try {
     const wishlist = await getWishlist();
     wishlist.items = wishlist.items.filter(
@@ -118,7 +118,7 @@ export async function removeFromWishlist(productId: number) {
 }
 
 // Check if product is in wishlist
-export async function isInWishlist(productId: number): Promise<boolean> {
+export async function isInWishlist(productId: string): Promise<boolean> {
   const wishlist = await getWishlist();
   return wishlist.items.some((item) => item.productId === productId);
 }

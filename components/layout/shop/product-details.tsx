@@ -115,20 +115,26 @@ export function ProductDetails({ product }: { product: Product }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
-          <div className="aspect-square bg-muted/30 rounded-lg p-8 flex items-center justify-center relative overflow-hidden">
+          <div className="aspect-square bg-muted/30 rounded-lg p-4 flex items-center justify-center relative overflow-hidden">
             <div className="absolute inset-0 honeycomb-pattern opacity-20"></div>
             <Image
               width={400}
               height={400}
               src={product.images[selectedImage] || "/placeholder.svg"}
               alt={product.productName}
-              className="relative z-10 max-w-full h-auto"
+              className="relative z-10 w-full h-auto"
             />
-            {product.tags && (
-              <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground">
-                {product.tags}
-              </Badge>
-            )}
+            <div className="absolute top-4 left-4 flex gap-2 items-center">
+              {product.tags &&
+                product.tags.map((tag) => (
+                  <Badge
+                    key={tag}
+                    className=" bg-primary text-primary-foreground"
+                  >
+                    {tag}
+                  </Badge>
+                ))}
+            </div>
           </div>
 
           <div className="flex space-x-2">
@@ -295,9 +301,9 @@ export function ProductDetails({ product }: { product: Product }) {
       <Tabs defaultValue="description" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="description">Description</TabsTrigger>
-          <TabsTrigger value="nutrition">Source & Origin</TabsTrigger>
+          <TabsTrigger value="source_origing">Source & Origin</TabsTrigger>
           <TabsTrigger value="reviews">
-            Reviews ({product.totalReviews})
+            Reviews ({product.totalReviews || 0})
           </TabsTrigger>
         </TabsList>
 
@@ -307,53 +313,35 @@ export function ProductDetails({ product }: { product: Product }) {
               <h3 className="font-semibold text-lg text-foreground mb-4">
                 Product Description
               </h3>
-              <div></div>
-
-              <h4 className="font-semibold text-foreground mb-3">
-                Health Benefits
-              </h4>
-              <ul className="space-y-2">
-                {product?.benefits?.map((benefit, index) => (
-                  <li
-                    key={index}
-                    className="flex items-start space-x-2 text-muted-foreground"
-                  >
-                    <div className="h-1.5 w-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                    <span>{benefit}</span>
-                  </li>
-                ))}
-              </ul>
+              <div
+                dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+              />
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="nutrition" className="mt-6">
+        <TabsContent value="source_origing" className="mt-6">
           <Card>
             <CardContent className="p-6">
-              <h3 className="font-semibold text-lg text-foreground mb-4">
-                Nutritional Information
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                {/* {Object?.entries(product?.nutritionalInfo).map(
-                  ([key, value]) => (
-                    <div
-                      key={key}
-                      className="flex justify-between items-center p-3 bg-muted/30 rounded-lg"
-                    >
-                      <span className="text-foreground capitalize">
-                        {key.replace(/([A-Z])/g, " $1")}
-                      </span>
-                      <span className="font-semibold text-primary">
-                        {value}
-                      </span>
-                    </div>
-                  )
-                )} */}
+              <div>
+                <h3 className="font-semibold text-lg text-foreground mb-2">
+                  Sourece Info
+                </h3>
+                <div>
+                  <p>{product.source.beekeeper} </p>
+                  <p>{product.source.region} </p>
+                </div>
+                <div>
+                  <p>{product.source.harvestSeason} </p>
+                </div>
+
+                <div
+                  className="mt-4"
+                  dangerouslySetInnerHTML={{
+                    __html: product.sourceDetailsHtml,
+                  }}
+                />
               </div>
-              <p className="text-sm text-muted-foreground mt-4">
-                * Values are approximate and may vary based on natural
-                variations in honey composition.
-              </p>
             </CardContent>
           </Card>
         </TabsContent>

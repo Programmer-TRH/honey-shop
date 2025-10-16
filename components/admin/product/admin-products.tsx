@@ -15,8 +15,6 @@ export default async function AdminProducts() {
     },
   });
   const productData = await res.json();
-  const { data, meta, filters } = productData;
-  console.log("Filters:", filters);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -26,7 +24,9 @@ export default async function AdminProducts() {
           <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">
             Products
           </h1>
-          <p className="mt-1 text-sm text-gray-500">{data.length} products</p>
+          <p className="mt-1 text-sm text-gray-500">
+            {productData.data.length} products
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" className="gap-2 bg-transparent">
@@ -50,10 +50,10 @@ export default async function AdminProducts() {
       </div>
 
       {/* Filters */}
-      <ProductTableToolbar filters={filters} />
+      <ProductTableToolbar filters={productData.filters} />
 
       {/* Products Table */}
-      <ProductsTable products={data} meta={meta} />
+      <ProductsTable initialProducts={productData} meta={productData.meta} />
     </div>
   );
 }

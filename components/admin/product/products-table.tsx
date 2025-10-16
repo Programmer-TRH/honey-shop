@@ -4,6 +4,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -29,20 +30,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { Product } from "@/types/product";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Edit,
-  Eye,
-  MoreVertical,
-  Trash2,
-} from "lucide-react";
+import { Edit, MoreVertical, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import Pagination from "@/components/shared/paggination";
+import { useSearchParams } from "next/navigation";
+import { useCache } from "@/hooks/useCache";
+import { ProductProps } from "@/components/layout/shop/shop";
+import LoadingSkeleton from "@/components/skeleton/loading-skeleton";
 
 interface Meta {
   total: number;
@@ -52,20 +49,33 @@ interface Meta {
 }
 
 export default function ProductsTable({
-  products,
+  initialProducts,
   meta,
 }: {
-  products: Product[];
+  initialProducts: ProductProps;
   meta: Meta;
 }) {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const { state } = useSidebar();
 
+  const searchParams = useSearchParams();
+  const query = searchParams.toString();
+
+  const { data, loading } = useCache({
+    initialData: initialProducts,
+    url: "/api/custom/products",
+    query,
+  });
+
+  const products = data?.data;
+
+  console.log("Admin Products data:", products);
+
   const toggleSelectAll = () => {
-    if (selectedProducts.length === products.length) {
+    if (selectedProducts.length === products?.length) {
       setSelectedProducts([]);
     } else {
-      setSelectedProducts(products.map((p) => p.id));
+      setSelectedProducts(products?.map((p) => p.id)!);
     }
   };
 
@@ -103,6 +113,8 @@ export default function ProductsTable({
     }
   };
 
+  if (loading) <LoadingSkeleton />;
+
   return (
     <>
       {selectedProducts.length > 0 && (
@@ -114,7 +126,7 @@ export default function ProductsTable({
             </span>
             <div className="flex gap-2">
               <AlertDialog>
-                <AlertDialogTrigger>
+                <AlertDialogTrigger asChild>
                   <Button
                     variant="outline"
                     size="sm"
@@ -125,9 +137,13 @@ export default function ProductsTable({
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle className="text-center mb-4">
-                      Confirm The delete process.
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
                     </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      your account and remove your data from our servers.
+                    </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancle</AlertDialogCancel>
@@ -160,11 +176,11 @@ export default function ProductsTable({
               <TableRow>
                 <TableHead className="w-12">
                   <Checkbox
-                    checked={selectedProducts.length === products.length}
+                    checked={selectedProducts.length === products?.length}
                     onCheckedChange={toggleSelectAll}
                   />
                 </TableHead>
-                <TableHead className="w-24">Product ID</TableHead>
+                <TableHead className="w-24">SKU</TableHead>
                 <TableHead className="min-w-[250px]">Name</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Stock</TableHead>

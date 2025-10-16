@@ -15,8 +15,6 @@ import {
   Star,
   BadgeCheck,
   Weight,
-  ChartBarStacked,
-  BadgeCheckIcon,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useParsedQuery } from "@/hooks/useParsedQuery";
@@ -33,7 +31,6 @@ interface FiltersProps {
     weight?: FilterValue[];
     category?: FilterValue[];
     availability?: FilterValue[];
-    badge?: FilterValue[];
     price?: FilterValue[];
   };
 }
@@ -53,12 +50,6 @@ export function ShopFilters({ filters }: FiltersProps) {
     ? query.weight
     : query.weight
     ? query.weight.split(",")
-    : [];
-
-  const selectedBadges: string[] = Array.isArray(query.badge)
-    ? query.badge
-    : query.badge
-    ? query.badge.split(",")
     : [];
 
   const showAvailabilityOnly = query.availability === "in-stock";
@@ -89,7 +80,6 @@ export function ShopFilters({ filters }: FiltersProps) {
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
 
   const weights = filters.weight;
-  const badges = filters.badge;
 
   const handleRatingChange = (value: number | null) => {
     updateQuery({
@@ -116,7 +106,6 @@ export function ShopFilters({ filters }: FiltersProps) {
     });
   };
 
-  // Handler to update local state only
   const handlePriceChange = (from: number, to: number) => {
     setPriceRange({ from, to });
   };
@@ -137,7 +126,6 @@ export function ShopFilters({ filters }: FiltersProps) {
 
   const activeFiltersCount =
     selectedWeights.length +
-    selectedBadges.length +
     (showAvailabilityOnly ? 1 : 0) +
     (query.minPrice || query.maxPrice ? 1 : 0) +
     (rating ? 1 : 0);
@@ -322,44 +310,6 @@ export function ShopFilters({ filters }: FiltersProps) {
             onValueChange={([from, to]) => handlePriceChange(from, to)}
             className="w-full mt-4 mb-3"
           />
-        </CardContent>
-      </Card>
-
-      {/* Badge  */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-1">
-            <BadgeCheckIcon className="h-4 w-4" /> Badge
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {filters?.badge?.map(({ value, count }) => (
-            <div key={value} className="flex items-center space-x-2">
-              <Checkbox
-                id={value}
-                checked={(query.badge?.split(",") ?? []).includes(value)}
-                onCheckedChange={(checked) => {
-                  const next = checked
-                    ? [...(query.badge?.split(",") ?? []), value]
-                    : (query.badge?.split(",") ?? []).filter(
-                        (b) => b !== value
-                      );
-
-                  updateQuery({
-                    badge: next.length ? next.join(",") : null,
-                    page: "1",
-                  });
-                }}
-              />
-              <Label
-                htmlFor={value}
-                className="text-sm font-normal cursor-pointer flex justify-between w-full"
-              >
-                <span>{value}</span>
-                <span className="ml-auto text-muted-foreground">({count})</span>
-              </Label>
-            </div>
-          ))}
         </CardContent>
       </Card>
 

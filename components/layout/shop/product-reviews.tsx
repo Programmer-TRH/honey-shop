@@ -18,10 +18,10 @@ import { getProductReviews, markReviewHelpful } from "@/actions/review-actions";
 import type { Review } from "@/lib/mock-data";
 
 interface ProductReviewsProps {
-  productId: number;
+  productId: string;
   initialReviews: Review[];
-  averageRating: number;
-  totalReviews: number;
+  averageRating: number | undefined;
+  totalReviews: number | undefined;
 }
 
 export function ProductReviews({
@@ -111,14 +111,14 @@ export function ProductReviews({
             {/* Overall Rating */}
             <div className="text-center">
               <div className="text-4xl font-bold text-primary mb-2">
-                {averageRating}
+                {averageRating || 0}
               </div>
               <div className="flex items-center justify-center space-x-1 mb-2">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
                     className={`h-5 w-5 ${
-                      i < Math.floor(averageRating)
+                      i < Math.floor(averageRating || 0)
                         ? "fill-primary text-primary"
                         : "text-muted-foreground/30"
                     }`}

@@ -7,25 +7,23 @@ import Link from "next/link";
 import Image from "next/image";
 import PlaceholderImage from "@/public/placeholder.svg";
 import { Product } from "@/types/product";
+import { toast } from "sonner";
 
 export default function ProductCard({ product }: { product: Product }) {
-  console.log("Product ID:", product.id);
-  const toggleFavorite = async (productId: string) => {
-    console.log("Add Favourite.");
+  const toggleWishList = async (productId: string) => {
+    toast.success(`Add Favourite. ${productId}`);
   };
 
   const handleAddToCart = async (productId: string) => {
-    console.log("Product iD:", productId);
-    console.log("Add to cart.");
+    toast.success(`Product iD: ${productId}`);
   };
 
   return (
     <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-border/50 overflow-hidden bg-white">
-      {/* Image & Badges */}
+      {/* Image & Availability */}
       <div className="relative">
-        <div className="aspect-square bg-gradient-to-br from-primary/5 to-orange-50 p-6 flex items-center justify-center relative overflow-hidden group">
+        <div className="aspect-square bg-gradient-to-br from-primary/5 to-orange-50 p-4 flex items-center justify-center relative overflow-hidden group">
           {/* Product Image */}
-
           <Image
             width={400}
             height={400}
@@ -34,18 +32,13 @@ export default function ProductCard({ product }: { product: Product }) {
             className="relative z-10 max-w-full h-auto transition-transform duration-500 group-hover:scale-110"
           />
 
-          {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2 z-20">
-            {product.tags && (
-              <Badge className="bg-primary text-white shadow-lg">
-                {product.tags}
-              </Badge>
-            )}
+          {/* Availability */}
+          <div className="absolute top-3 left-3 flex flex-wrap gap-2 z-20">
             {product.availability && (
               <Badge variant="outline" className="bg-background">
-                {product.availability === "in-stock"
-                  ? "In Stock"
-                  : "Out of Stock"}
+                {product.availability === "out-of-stock"
+                  ? "Out of Stock"
+                  : "In Stock"}
               </Badge>
             )}
           </div>
@@ -55,10 +48,10 @@ export default function ProductCard({ product }: { product: Product }) {
             <button
               title="Toggle Favorite"
               type="button"
-              onClick={() => toggleFavorite(product.id)}
-              className="p-2 rounded-full bg-white/90 hover:bg-white shadow-lg transition-all hover:scale-110 disabled:opacity-50"
+              onClick={() => toggleWishList(product.id)}
+              className="p-2 rounded-full bg-secondary shadow-lg transition-all hover:scale-110 disabled:opacity-50"
             >
-              <Heart className="h-4 w-4 disabled:fill-red-500 disabled:text-red-500 text-muted-foreground" />
+              <Heart className="h-4 w-4 disabled:fill-red-500 disabled:text-red-500 text-white " />
             </button>
           </div>
 
@@ -86,59 +79,63 @@ export default function ProductCard({ product }: { product: Product }) {
 
         <CardContent className="p-5">
           {/* Rating */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center space-x-1">
-                {[...Array(5)].map((_, i) => {
-                  const fullStars = Math.floor(product?.rating!);
-                  const decimal = product?.rating! - fullStars;
-                  let fillPercentage = 0;
+          {product.rating && (
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1">
+                  {[...Array(5)].map((_, i) => {
+                    const fullStars = Math.floor(product?.rating!);
+                    const decimal = product?.rating! - fullStars;
+                    let fillPercentage = 0;
 
-                  if (i < fullStars) fillPercentage = 100;
-                  else if (i === fullStars) fillPercentage = decimal * 100;
+                    if (i < fullStars) fillPercentage = 100;
+                    else if (i === fullStars) fillPercentage = decimal * 100;
 
-                  return (
-                    <div key={i} className="relative h-4 w-4">
-                      {/* Empty star */}
-                      <Star className="absolute h-4 w-4 text-muted-foreground/30" />
-                      {/* Filled star overlay */}
-                      {fillPercentage > 0 && (
-                        <div
-                          className="absolute top-0 left-0 h-4 overflow-hidden "
-                          style={{ width: `${fillPercentage}%` }}
-                        >
-                          <Star className="h-4 w-4 fill-primary text-primary" />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                    return (
+                      <div key={i} className="relative h-4 w-4">
+                        {/* Empty star */}
+                        <Star className="absolute h-4 w-4 text-muted-foreground/30" />
+                        {/* Filled star overlay */}
+                        {fillPercentage > 0 && (
+                          <div
+                            className="absolute top-0 left-0 h-4 overflow-hidden "
+                            style={{ width: `${fillPercentage}%` }}
+                          >
+                            <Star className="h-4 w-4 fill-primary text-primary" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <span className="text-sm font-medium text-muted-foreground">
+                  {product.rating}
+                </span>
+                <span className="text-sm font-medium text-muted-foreground">
+                  ({product.totalReviews})
+                </span>
               </div>
-              <span className="text-sm font-medium text-muted-foreground">
-                {product.rating}
-              </span>
-              <span className="text-sm font-medium text-muted-foreground">
-                ({product.totalReviews})
-              </span>
+              <div className="flex items-center space-x-1 text-green-600">
+                <Shield className="h-3 w-3" />
+                <span className="text-xs font-medium">Pure</span>
+              </div>
             </div>
-            <div className="flex items-center space-x-1 text-green-600">
-              <Shield className="h-3 w-3" />
-              <span className="text-xs font-medium">Pure</span>
-            </div>
-          </div>
+          )}
 
           {/* Product Info */}
-          <Link href={`/shop/${product.slug}`}>
-            <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-lg">
-              {product.productName}
-            </h3>
-          </Link>
-          <p className="text-sm text-muted-foreground mb-4 font-medium">
-            {product.weight}
-          </p>
+          <div className="flex items-center justify-between mb-2">
+            <Link href={`/shop/${product.slug}`}>
+              <h3 className="font-semibold text-foreground line-clamp-2 text-lg">
+                {product.productName}
+              </h3>
+            </Link>
+            <p className="text-sm text-muted-foreground font-medium">
+              {product.weight}
+            </p>
+          </div>
 
           {/* Price */}
-          <div className="flex items-center space-x-2 mb-5">
+          <div className="flex items-center space-x-2 mb-6">
             <span className="text-xl font-bold text-primary">
               ৳{product.price}
             </span>

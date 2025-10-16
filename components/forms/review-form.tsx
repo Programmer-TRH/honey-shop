@@ -10,7 +10,7 @@ import { Star } from "lucide-react";
 import { submitReview } from "@/actions/review-actions";
 
 interface ReviewFormProps {
-  productId: number;
+  productId: string;
   onReviewSubmitted?: () => void;
 }
 
