@@ -13,8 +13,10 @@ import {
   removeFromWishlistAction,
 } from "@/actions/wishlist-actions";
 import { addToCartAction } from "@/actions/cart-actions";
+import { useWishlist } from "@/context/WishlistProvider";
 
 export function WishlistContent({ result }: { result: PaginatedWishlist }) {
+  const { removeFromWishlist, removeFromWishlistAll } = useWishlist();
   const [isLoading, setIsLoading] = useState(false);
   const wishlistItems = result?.items;
 
@@ -46,6 +48,7 @@ export function WishlistContent({ result }: { result: PaginatedWishlist }) {
       } else {
         toast.error(`${result.message}`);
       }
+      removeFromWishlist(productId);
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
@@ -60,6 +63,7 @@ export function WishlistContent({ result }: { result: PaginatedWishlist }) {
       const result = await clearWishlistAction();
       if (result.success) {
         toast.success(`${result.message}`);
+        removeFromWishlistAll();
       } else {
         toast.error(`${result.message}`);
       }

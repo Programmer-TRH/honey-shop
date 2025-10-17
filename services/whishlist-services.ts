@@ -16,6 +16,8 @@ export interface PaginatedWishlist {
     weight: string;
     availability: string;
     createdAt: Date;
+    rating: number;
+    reviews: number;
   }>;
   page: number;
   pageSize: number;
@@ -69,6 +71,8 @@ export async function getWishlist(
           image: { $arrayElemAt: ["$product.images", 0] },
           weight: "$product.weight",
           availability: "$product.availability",
+          rating: "$product.rating",
+          reviews: "$product.reviews",
           createdAt: Date.now(),
         },
       },

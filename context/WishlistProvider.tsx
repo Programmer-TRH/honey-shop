@@ -9,6 +9,7 @@ interface WishlistContextType {
   isWishlisted: (productId: string) => boolean;
   addToWishlist: (productId: string) => void;
   removeFromWishlist: (productId: string) => void;
+  removeFromWishlistAll: () => void;
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(
@@ -47,6 +48,10 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
+  const removeFromWishlistAll = () => {
+    setWishlistSet(new Set()); // clear all
+  };
+
   return (
     <WishlistContext.Provider
       value={{
@@ -55,6 +60,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({
         isWishlisted,
         addToWishlist,
         removeFromWishlist,
+        removeFromWishlistAll,
       }}
     >
       {children}
