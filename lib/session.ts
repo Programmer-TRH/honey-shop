@@ -1,7 +1,7 @@
 import "server-only";
 import { JWTPayload, jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const secretKey = process.env.SESSION_SECRET;
 if (!secretKey) throw new Error("SESSION_SECRET is not defined");
@@ -88,8 +88,10 @@ export async function createToken(userId: string, role: string) {
 /**
  * Rotate refresh token → issue new one
  */
-export async function updateToken(): Promise<NextResponse | null> {
-  const cookieStore = await cookies();
+export async function updateToken(
+  req?: NextRequest
+): Promise<NextResponse | null> {
+  const cookieStore = req ? req.cookies : await cookies();
   const token = cookieStore.get("refresh_token")?.value;
   const payload = await decrypt(token);
 
@@ -97,7 +99,7 @@ export async function updateToken(): Promise<NextResponse | null> {
 
   // Prevent reuse of old refresh tokens
   if (blacklistedTokens.has(payload.jti)) {
-    console.log("Refresh token reuse detected!");
+    console.log("⚠️ Refresh token reuse detected!");
     return null;
   }
 

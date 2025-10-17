@@ -11,34 +11,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Settings, ShoppingBag, Heart, LogOut, User2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { User } from "@/types/user";
 import ProfileAvatar from "@/public/placeholder.svg";
 import { Skeleton } from "../ui/skeleton";
+import { useUser } from "@/context/UserProvider";
 
 export function UserMenu() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function getData() {
-      try {
-        const res = await fetch("/api/user", {
-          credentials: "include",
-          next: { tags: ["user"] },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.data);
-        }
-      } catch (err) {
-        console.error("Error fetching user:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    getData();
-  }, []);
+  const { user, loading } = useUser();
 
   // ⏳ Show skeleton while loading
   if (loading) {

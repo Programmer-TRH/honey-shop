@@ -37,10 +37,6 @@ export default function Blog({ initialBlogs }: { initialBlogs: BlogProps }) {
     query,
   });
 
-  if (!blogs?.data?.length) {
-    toast.warning("No Blogs found.");
-  }
-
   return (
     <>
       <div className="flex-1">

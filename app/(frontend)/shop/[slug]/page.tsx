@@ -1,5 +1,6 @@
 import { ProductDetails } from "@/components/layout/shop/product-details";
 import { RelatedProducts } from "@/components/layout/shop/related-products";
+import { getCart } from "@/services/cart-service";
 import {
   getProduct,
   getProducts,

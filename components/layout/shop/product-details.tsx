@@ -17,26 +17,24 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { ProductReviews } from "@/components/layout/shop/product-reviews";
-import { addToCart } from "@/actions/cart-actions";
 import {
   addToWishlist,
   removeFromWishlist,
   isInWishlist,
 } from "@/actions/wishlist-actions";
 import { getProductReviews } from "@/actions/data-actions";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Image from "next/image";
 import { Product } from "@/types/product";
+import { addToCartAction, updateQuantityAction } from "@/actions/cart-actions";
 
 export function ProductDetails({ product }: { product: Product }) {
+  const [quantity, setQuantity] = useState<number>(1);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
   const [productReviews, setProductReviews] = useState<any[]>([]);
-  const router = useRouter();
 
   useEffect(() => {
     const checkWishlistStatus = async () => {
@@ -54,21 +52,15 @@ export function ProductDetails({ product }: { product: Product }) {
   }, [product.id]);
 
   const handleAddToCart = async () => {
-    setIsAddingToCart(true);
-    try {
-      const result = await addToCart(product.id, quantity);
-      if (result.success) {
-        router.refresh();
-        toast.success(`Added ${quantity} item(s) to cart`);
-      } else {
-        toast.error("Failed to add to cart");
-      }
-    } catch (error) {
-      console.error("Failed to add to cart:", error);
-      toast.error("Something went wrong");
-    } finally {
-      setIsAddingToCart(false);
+    setIsLoading(true);
+
+    const result = await addToCartAction(product.id, quantity);
+    if (result.success) {
+      toast.success(`${result.message}`);
+    } else {
+      toast.error(`${result.message}`);
     }
+    setIsLoading(false);
   };
 
   const handleToggleWishlist = async () => {
@@ -243,9 +235,9 @@ export function ProductDetails({ product }: { product: Product }) {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  onClick={() => setQuantity(quantity - 1)}
                   className="h-8 w-8 p-0 bg-transparent"
-                  disabled={isAddingToCart}
+                  disabled={isLoading}
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
@@ -257,7 +249,7 @@ export function ProductDetails({ product }: { product: Product }) {
                   size="sm"
                   onClick={() => setQuantity(quantity + 1)}
                   className="h-8 w-8 p-0 bg-transparent"
-                  disabled={isAddingToCart}
+                  disabled={isLoading}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -269,10 +261,10 @@ export function ProductDetails({ product }: { product: Product }) {
                 size="lg"
                 className="flex-1"
                 onClick={handleAddToCart}
-                disabled={isAddingToCart}
+                disabled={isLoading}
               >
                 <ShoppingCart className="h-5 w-5 mr-2" />
-                {isAddingToCart
+                {isLoading
                   ? "Adding..."
                   : `Add to Cart - ৳${product.price * quantity}`}
               </Button>

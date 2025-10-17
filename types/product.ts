@@ -15,6 +15,7 @@ interface SEOInfo {
 export interface Product {
   // Step 1: Basic Info & Description
   productName: string;
+  quantity: number;
   slug: string;
   sku: string;
   category: string;

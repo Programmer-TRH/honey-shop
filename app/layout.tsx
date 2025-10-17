@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import "./globals.css";
 import { Toaster } from "sonner";
+import AuthProvider from "@/context/AuthProvider";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -32,7 +33,9 @@ export default function RootLayout({
       <body
         className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${playfair.variable} bg-background`}
       >
-        <Suspense fallback={null}>{children}</Suspense>
+        <Suspense fallback={null}>
+          <AuthProvider>{children}</AuthProvider>
+        </Suspense>
         <Analytics />
         <Toaster position="top-right" richColors />
       </body>

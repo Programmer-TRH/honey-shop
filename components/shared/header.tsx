@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Menu, Phone, Heart, ShoppingCart } from "lucide-react";
-import { CartDrawer } from "./cart-drawer";
 import { UserMenu } from "./user-menu";
 
 export function Header() {
@@ -74,8 +73,6 @@ export function Header() {
               </Link>
             </Button>
 
-            {/* <CartDrawer /> */}
-
             <UserMenu />
 
             {/* Mobile Menu */}
@@ -118,7 +115,6 @@ export function Header() {
                       href="/cart"
                       className="flex items-center space-x-2 text-lg font-medium text-foreground hover:text-primary transition-colors"
                     >
-                      <CartDrawer />
                       <span>View Cart</span>
                     </Link>
                     <Button className="w-full" size="lg">

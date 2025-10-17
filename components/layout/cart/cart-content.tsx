@@ -1,254 +1,188 @@
-"use client"
+"use client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Plus,
+  Minus,
+  X,
+  ShoppingCart,
+  ArrowRight,
+  Truck,
+  Shield,
+  Heart,
+  Clock,
+  Star,
+} from "lucide-react";
+import Link from "next/link";
+import { PaginatedCart } from "@/services/cart-service";
+import {
+  addToCartAction,
+  removeFromCartAction,
+  updateQuantityAction,
+} from "@/actions/cart-actions";
+import { toast } from "sonner";
+import { useState } from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Minus, X, ShoppingCart, ArrowRight, Truck, Shield, Heart, Star, Clock } from "lucide-react"
-import Link from "next/link"
+export function CartContent({ result }: { result: PaginatedCart }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const items = result.items;
 
-const initialCartItems = [
-  {
-    id: 1,
-    name: "Premium Wildflower Honey",
-    weight: "500g",
-    price: 850,
-    quantity: 2,
-    image: "/wildflower-honey-jar-500g.jpg",
-  },
-  {
-    id: 2,
-    name: "Pure Acacia Honey",
-    weight: "250g",
-    price: 450,
-    quantity: 1,
-    image: "/acacia-honey-jar-250g.jpg",
-  },
-]
+  const updateQuantity = async (id: string, newQuantity: number) => {
+    setIsLoading(true);
 
-const savedForLaterItems = [
-  {
-    id: 5,
-    name: "Litchi Blossom Honey",
-    weight: "250g",
-    price: 550,
-    originalPrice: 600,
-    image: "/litchi-honey-jar-250g.jpg",
-    inStock: false,
-  },
-]
+    try {
+      const result = await updateQuantityAction(id, newQuantity);
+      if (result.success === true) {
+        toast.success(`${result.message}`);
+      } else {
+        toast.error(`${result.message}`);
+      }
+    } catch (error) {
+      toast.error(`${error}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-const recommendedProducts = [
-  {
-    id: 3,
-    name: "Sundarban Mangrove Honey",
-    weight: "1kg",
-    price: 1650,
-    originalPrice: 1800,
-    rating: 4.7,
-    reviews: 56,
-    image: "/sundarban-honey-jar-1kg.jpg",
-    badge: "Limited",
-  },
-  {
-    id: 4,
-    name: "Mustard Flower Honey",
-    weight: "500g",
-    price: 750,
-    rating: 4.6,
-    reviews: 73,
-    image: "/mustard-honey-jar-500g.jpg",
-  },
-]
-
-export function CartContent() {
-  const [items, setItems] = useState(initialCartItems)
-  const [savedItems, setSavedItems] = useState(savedForLaterItems)
-  const [promoCode, setPromoCode] = useState("")
-  const [appliedPromo, setAppliedPromo] = useState<string | null>(null)
-
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity === 0) {
-      setItems(items.filter((item) => item.id !== id))
+  const removeItem = async (id: string) => {
+    setIsLoading(true);
+    const result = await removeFromCartAction(id);
+    if (result.success === true) {
+      toast.success(`${result.message}`);
     } else {
-      setItems(items.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item)))
+      toast.error(`${result.message}`);
     }
-  }
 
-  const removeItem = (id: number) => {
-    setItems(items.filter((item) => item.id !== id))
-  }
+    setIsLoading(false);
+  };
 
-  const saveForLater = (id: number) => {
-    const item = items.find((item) => item.id === id)
-    if (item) {
-      setSavedItems([...savedItems, { ...item, quantity: undefined }])
-      removeItem(id)
+  const handleAddtoCart = async (id: string) => {
+    setIsLoading(true);
+    try {
+      const result = await addToCartAction(id);
+      if (result.success === true) {
+        toast.success(`${result.message}`);
+      }
+    } catch (error) {
+      toast.error(`${error}`);
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
-  const moveToCart = (id: number) => {
-    const item = savedItems.find((item) => item.id === id)
-    if (item) {
-      setItems([...items, { ...item, quantity: 1 }])
-      setSavedItems(savedItems.filter((item) => item.id !== id))
-    }
-  }
+  const recommendedProducts = result.items;
 
-  const applyPromoCode = () => {
-    if (promoCode.toLowerCase() === "honey10") {
-      setAppliedPromo("HONEY10")
-    }
-  }
-
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const discount = appliedPromo === "HONEY10" ? Math.round(subtotal * 0.1) : 0
-  const deliveryFee = subtotal >= 1000 ? 0 : 60
-  const total = subtotal - discount + deliveryFee
-
-  if (items.length === 0 && savedItems.length === 0) {
+  if (items?.length === 0) {
     return (
       <div className="max-w-2xl mx-auto text-center py-16">
         <div className="mb-8">
           <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h1 className="font-serif text-2xl font-bold text-foreground mb-2">Your Cart is Empty</h1>
-          <p className="text-muted-foreground">Add some delicious honey to get started!</p>
+          <h1 className="font-serif text-2xl font-bold text-foreground mb-2">
+            Your Cart is Empty
+          </h1>
+          <p className="text-muted-foreground">
+            Add some delicious honey to get started!
+          </p>
         </div>
         <Button asChild size="lg">
           <Link href="/shop">Continue Shopping</Link>
         </Button>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="mb-8">
-        <h1 className="font-serif text-3xl font-bold text-foreground mb-2">Shopping Cart</h1>
-        <p className="text-muted-foreground">{items.length} items in your cart</p>
+    <div className="max-w-7xl mx-auto p-4 md:p-0 ">
+      <div className="my-8">
+        <h1 className="font-serif text-3xl font-bold text-foreground mb-2">
+          Shopping Cart
+        </h1>
+        <p className="text-muted-foreground">
+          {items?.length || 0} items in your cart
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-6 ">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-6">
-          <Tabs defaultValue="cart" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="cart">Cart ({items.length})</TabsTrigger>
-              <TabsTrigger value="saved">Saved for Later ({savedItems.length})</TabsTrigger>
-            </TabsList>
+          {items?.map((item) => (
+            <Card
+              key={item.id}
+              className="border-border/50 hover:shadow-md transition-shadow group"
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <img
+                    src={item.image || "/placeholder.svg"}
+                    alt={item.productName}
+                    className="h-24 w-24 object-cover rounded-lg"
+                  />
 
-            <TabsContent value="cart" className="space-y-4 mt-6">
-              {items.map((item) => (
-                <Card key={item.id} className="border-border/50 hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <img
-                        src={item.image || "/placeholder.svg"}
-                        alt={item.name}
-                        className="h-24 w-24 object-cover rounded-lg"
-                      />
-
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground truncate">{item.name}</h3>
-                        <p className="text-sm text-muted-foreground">{item.weight}</p>
-                        <p className="text-lg font-bold text-primary">৳{item.price}</p>
-
-                        <div className="flex items-center space-x-4 mt-2">
-                          <button
-                            onClick={() => saveForLater(item.id)}
-                            className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center space-x-1"
-                          >
-                            <Heart className="h-3 w-3" />
-                            <span>Save for Later</span>
-                          </button>
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center space-x-1"
-                          >
-                            <X className="h-3 w-3" />
-                            <span>Remove</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-3">
-                        <div className="flex items-center space-x-2 border rounded-lg p-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-
-                        <div className="text-right">
-                          <p className="font-bold text-foreground">৳{item.price * item.quantity}</p>
-                        </div>
-                      </div>
+                  <div className="flex-1 min-w-0">
+                    <Link href={`/shop/${item.slug}`}>
+                      <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-secondary text-lg">
+                        {item.productName}
+                      </h3>
+                    </Link>
+                    <div className="flex items-center gap-2">
+                      <p className="text-lg font-bold text-primary">
+                        ৳{item.price}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        ({item.weight})
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </TabsContent>
 
-            <TabsContent value="saved" className="space-y-4 mt-6">
-              {savedItems.map((item) => (
-                <Card key={item.id} className="border-border/50">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <img
-                        src={item.image || "/placeholder.svg"}
-                        alt={item.name}
-                        className="h-20 w-20 object-cover rounded-lg opacity-75"
-                      />
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center space-x-1 mt-2 border rounded-sm px-2 py-1"
+                      disabled={isLoading}
+                    >
+                      <X className="h-3 w-3" />
+                      <span>Remove</span>
+                    </button>
+                  </div>
 
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground truncate">{item.name}</h3>
-                        <p className="text-sm text-muted-foreground">{item.weight}</p>
-                        <div className="flex items-center space-x-2">
-                          <p className="text-lg font-bold text-primary">৳{item.price}</p>
-                          {item.originalPrice && (
-                            <span className="text-sm text-muted-foreground line-through">৳{item.originalPrice}</span>
-                          )}
-                        </div>
-                        {!item.inStock && (
-                          <Badge variant="outline" className="mt-1">
-                            Out of Stock
-                          </Badge>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col space-y-2">
-                        <Button size="sm" onClick={() => moveToCart(item.id)} disabled={!item.inStock}>
-                          Move to Cart
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSavedItems(savedItems.filter((saved) => saved.id !== item.id))}
-                        >
-                          Remove
-                        </Button>
-                      </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2 border rounded-lg p-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        disabled={isLoading}
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity - 1)
+                        }
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="text-sm font-medium w-8 text-center">
+                        {item.quantity}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        disabled={isLoading}
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity + 1)
+                        }
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </TabsContent>
-          </Tabs>
+
+                    <div className="text-right">
+                      <p className="font-bold text-foreground">
+                        ৳{result.subtotal}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
 
           {/* Recommended Products */}
           <Card className="border-border/50">
@@ -264,35 +198,53 @@ export function CartContent() {
                   >
                     <img
                       src={product.image || "/placeholder.svg"}
-                      alt={product.name}
+                      alt={product.productName}
                       className="h-16 w-16 object-cover rounded-lg"
                     />
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-sm truncate">{product.name}</h4>
-                      <p className="text-xs text-muted-foreground">{product.weight}</p>
-                      <div className="flex items-center space-x-1 mt-1">
-                        <div className="flex items-center space-x-1">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-2 w-2 ${
-                                i < Math.floor(product.rating)
-                                  ? "fill-primary text-primary"
-                                  : "text-muted-foreground/30"
-                              }`}
-                            />
-                          ))}
+                      <h4 className="font-medium text-sm truncate">
+                        {product.productName}
+                      </h4>
+                      <p className="text-xs text-muted-foreground">
+                        {product.weight}
+                      </p>
+                      {/* {product?.rating && (
+                        <div className="flex items-center space-x-1 mt-1">
+                          <div className="flex items-center space-x-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-2 w-2 ${
+                                  i < Math.floor(product?.rating)
+                                    ? "fill-primary text-primary"
+                                    : "text-muted-foreground/30"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            ({product?.reviews})
+                          </span>
                         </div>
-                        <span className="text-xs text-muted-foreground">({product.reviews})</span>
-                      </div>
+                      )} */}
+
                       <div className="flex items-center space-x-2 mt-1">
-                        <span className="text-sm font-bold text-primary">৳{product.price}</span>
+                        <span className="text-sm font-bold text-primary">
+                          ৳{product.price}
+                        </span>
                         {product.originalPrice && (
-                          <span className="text-xs text-muted-foreground line-through">৳{product.originalPrice}</span>
+                          <span className="text-xs text-muted-foreground line-through">
+                            ৳{product.originalPrice}
+                          </span>
                         )}
                       </div>
                     </div>
-                    <Button size="sm" variant="outline">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={isLoading}
+                      onClick={() => handleAddtoCart(product.id)}
+                    >
                       <Plus className="h-3 w-3" />
                     </Button>
                   </div>
@@ -311,66 +263,35 @@ export function CartContent() {
 
         {/* Order Summary */}
         <div className="space-y-6">
-          <Card className="border-border/50 sticky top-4">
+          <Card className="border-border/50 sticky top-16">
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-semibold">৳{subtotal}</span>
+                <span className="font-semibold">৳{result.subtotal}</span>
               </div>
-
-              {discount > 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span>Discount ({appliedPromo})</span>
-                  <span className="font-semibold">-৳{discount}</span>
-                </div>
-              )}
 
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Delivery</span>
                 <span className="font-semibold">
-                  {deliveryFee === 0 ? (
-                    <Badge variant="secondary" className="bg-green-100 text-green-800">
+                  {result.deliveryCharge === 0 ? (
+                    <Badge
+                      variant="secondary"
+                      className="bg-green-100 text-green-800"
+                    >
                       Free
                     </Badge>
                   ) : (
-                    `৳${deliveryFee}`
+                    `৳${result.deliveryCharge}`
                   )}
                 </span>
               </div>
-
-              {subtotal < 1000 && (
-                <div className="text-xs text-muted-foreground bg-muted/30 p-2 rounded">
-                  Add ৳{1000 - subtotal} more for free delivery
-                </div>
-              )}
-
               <hr className="border-border/50" />
               <div className="flex justify-between text-lg">
                 <span className="font-semibold text-foreground">Total</span>
-                <span className="font-bold text-primary">৳{total}</span>
-              </div>
-
-              {/* Promo Code */}
-              <div className="space-y-2">
-                <div className="flex space-x-2">
-                  <Input
-                    placeholder="Enter promo code"
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button variant="outline" size="sm" onClick={applyPromoCode} className="bg-transparent">
-                    Apply
-                  </Button>
-                </div>
-                {appliedPromo && (
-                  <div className="text-xs text-green-600 flex items-center space-x-1">
-                    <span>✓ Promo code applied successfully!</span>
-                  </div>
-                )}
+                <span className="font-bold text-primary">৳{result.total}</span>
               </div>
 
               <Button asChild size="lg" className="w-full">
@@ -392,21 +313,21 @@ export function CartContent() {
           <Card className="bg-muted/30 border-border/50">
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center space-x-2 text-sm">
-                <Truck className="h-4 w-4 text-primary" />
-                <span className="text-foreground">Free delivery on orders over ৳1000</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm">
                 <Shield className="h-4 w-4 text-primary" />
-                <span className="text-foreground">100% satisfaction guarantee</span>
+                <span className="text-foreground">
+                  100% satisfaction guarantee
+                </span>
               </div>
               <div className="flex items-center space-x-2 text-sm">
                 <div className="h-4 w-4 bg-primary rounded-full flex-shrink-0"></div>
-                <span className="text-foreground">Cash on Delivery available</span>
+                <span className="text-foreground">
+                  Cash on Delivery available
+                </span>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
-  )
+  );
 }
