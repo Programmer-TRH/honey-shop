@@ -2,6 +2,7 @@
 
 import { useTokenHeartbeat } from "@/hooks/use-token-heartbeat";
 import { UserProvider } from "./UserProvider";
+import { WishlistProvider } from "./WishlistProvider";
 
 export default function AuthProvider({
   children,
@@ -10,5 +11,9 @@ export default function AuthProvider({
 }) {
   useTokenHeartbeat(); // starts the heartbeat
 
-  return <UserProvider>{children}</UserProvider>;
+  return (
+    <UserProvider>
+      <WishlistProvider>{children}</WishlistProvider>
+    </UserProvider>
+  );
 }

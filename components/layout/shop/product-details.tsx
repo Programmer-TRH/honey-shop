@@ -17,29 +17,29 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { ProductReviews } from "@/components/layout/shop/product-reviews";
-import {
-  addToWishlist,
-  removeFromWishlist,
-  isInWishlist,
-} from "@/actions/wishlist-actions";
 import { getProductReviews } from "@/actions/data-actions";
 import { toast } from "sonner";
 import Image from "next/image";
 import { Product } from "@/types/product";
 import { addToCartAction, updateQuantityAction } from "@/actions/cart-actions";
+import {
+  addToWishlistAction,
+  isProductWishlistedAction,
+  removeFromWishlistAction,
+} from "@/actions/wishlist-actions";
 
 export function ProductDetails({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isWishlist, setIsWishlist] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
   const [productReviews, setProductReviews] = useState<any[]>([]);
 
   useEffect(() => {
     const checkWishlistStatus = async () => {
-      const inWishlist = await isInWishlist(product.id);
-      setIsFavorite(inWishlist);
+      const inWishlist = await isProductWishlistedAction(product.id);
+      setIsWishlist(inWishlist!);
     };
 
     const loadReviews = async () => {
@@ -66,18 +66,18 @@ export function ProductDetails({ product }: { product: Product }) {
   const handleToggleWishlist = async () => {
     setIsTogglingWishlist(true);
     try {
-      if (isFavorite) {
-        const result = await removeFromWishlist(product.id);
+      if (isWishlist) {
+        const result = await removeFromWishlistAction(product.id);
         if (result.success) {
-          setIsFavorite(false);
+          setIsWishlist(false);
           toast.success("Removed from wishlist");
         } else {
           toast.error("Failed to remove from wishlist");
         }
       } else {
-        const result = await addToWishlist(product.id);
+        const result = await addToWishlistAction(product.id);
         if (result.success) {
-          setIsFavorite(true);
+          setIsWishlist(true);
           toast.success("Added to wishlist");
         } else {
           toast.error("Failed to add to wishlist");
@@ -277,7 +277,7 @@ export function ProductDetails({ product }: { product: Product }) {
               >
                 <Heart
                   className={`h-5 w-5 ${
-                    isFavorite ? "fill-red-500 text-red-500" : ""
+                    isWishlist ? "fill-red-500 text-red-500" : ""
                   }`}
                 />
               </Button>

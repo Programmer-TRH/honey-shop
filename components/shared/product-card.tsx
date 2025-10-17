@@ -9,10 +9,38 @@ import PlaceholderImage from "@/public/placeholder.svg";
 import { Product } from "@/types/product";
 import { toast } from "sonner";
 import { addToCartAction } from "@/actions/cart-actions";
+import { useWishlist } from "@/context/WishlistProvider";
+import {
+  addToWishlistAction,
+  removeFromWishlistAction,
+} from "@/actions/wishlist-actions";
 
 export default function ProductCard({ product }: { product: Product }) {
+  const { isLoading, isWishlisted, addToWishlist, removeFromWishlist } =
+    useWishlist();
+
   const toggleWishList = async (productId: string) => {
-    toast.success(`Added to Wishlist: ${productId}`);
+    if (isWishlisted(productId)) {
+      removeFromWishlist(productId);
+
+      const result = await removeFromWishlistAction(productId);
+      if (result.success === true) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+        addToWishlist(productId);
+      }
+    } else {
+      addToWishlist(productId);
+
+      const result = await addToWishlistAction(productId);
+      if (result.success === true) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+        removeFromWishlist(productId);
+      }
+    }
   };
 
   const handleAddToCart = async (productId: string) => {
@@ -66,10 +94,15 @@ export default function ProductCard({ product }: { product: Product }) {
             <button
               title="Toggle Favorite"
               type="button"
+              disabled={isLoading}
               onClick={() => toggleWishList(product.id)}
               className="p-2 rounded-full bg-white shadow-md transition-transform hover:scale-110 hover:bg-red-50"
             >
-              <Heart className="h-5 w-5 text-red-500" />
+              <Heart
+                className={`h-5 w-5 ${
+                  isWishlisted(product.id) ? "fill-red-500 text-red-500" : ""
+                }`}
+              />
             </button>
           </div>
 

@@ -1,129 +1,74 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart, X, Heart, Eye, Loader2 } from "lucide-react";
 import Link from "next/link";
-import {
-  getWishlist,
-  removeFromWishlist,
-  clearWishlist,
-  type WishlistItem,
-} from "@/actions/wishlist-actions";
-import { addToCart } from "@/actions/cart-actions";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { PaginatedWishlist } from "@/services/whishlist-services";
+import {
+  clearWishlistAction,
+  removeFromWishlistAction,
+} from "@/actions/wishlist-actions";
+import { addToCartAction } from "@/actions/cart-actions";
 
-export function WishlistContent() {
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadingStates, setLoadingStates] = useState<{
-    remove: Record<number, boolean>;
-    cart: Record<number, boolean>;
-    clear: boolean;
-  }>({
-    remove: {},
-    cart: {},
-    clear: false,
-  });
-  const router = useRouter();
+export function WishlistContent({ result }: { result: PaginatedWishlist }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const wishlistItems = result?.items;
 
-  useEffect(() => {
-    const loadWishlist = async () => {
-      try {
-        const wishlist = await getWishlist();
-        setWishlistItems(wishlist.items);
-      } catch (error) {
-        console.error("Failed to load wishlist:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadWishlist();
-  }, []);
-
-  const handleRemoveFromWishlist = async (productId: number) => {
-    setLoadingStates((prev) => ({
-      ...prev,
-      remove: { ...prev.remove, [productId]: true },
-    }));
+  const handleAddToCart = async (productId: string) => {
+    setIsLoading(true);
 
     try {
-      const result = await removeFromWishlist(productId);
+      const result = await addToCartAction(productId);
       if (result.success) {
-        setWishlistItems((prev) =>
-          prev.filter((item) => item.productId !== productId)
-        );
-        toast.success("Removed from wishlist");
+        removeFromWishlistAction(productId);
+        toast.success(`${result.message}`);
       } else {
-        toast.error("Failed to remove from wishlist");
+        toast.error(`${result.message}`);
       }
     } catch (error) {
-      console.error("Failed to remove from wishlist:", error);
       toast.error("Something went wrong");
     } finally {
-      setLoadingStates((prev) => ({
-        ...prev,
-        remove: { ...prev.remove, [productId]: false },
-      }));
+      setIsLoading(false);
     }
   };
 
-  const handleAddToCart = async (productId: number) => {
-    setLoadingStates((prev) => ({
-      ...prev,
-      cart: { ...prev.cart, [productId]: true },
-    }));
+  const handleRemoveFromWishlist = async (productId: string) => {
+    setIsLoading(true);
 
     try {
-      const result = await addToCart(productId, 1);
+      const result = await removeFromWishlistAction(productId);
       if (result.success) {
-        router.refresh();
-        toast.success("Added to cart");
+        toast.success(`${result.message}`);
       } else {
-        toast.error("Failed to add to cart");
+        toast.error(`${result.message}`);
       }
     } catch (error) {
-      console.error("Failed to add to cart:", error);
       toast.error("Something went wrong");
     } finally {
-      setLoadingStates((prev) => ({
-        ...prev,
-        cart: { ...prev.cart, [productId]: false },
-      }));
+      setIsLoading(false);
     }
   };
 
   const handleClearAll = async () => {
-    setLoadingStates((prev) => ({ ...prev, clear: true }));
+    setIsLoading(true);
 
     try {
-      const result = await clearWishlist();
+      const result = await clearWishlistAction();
       if (result.success) {
-        setWishlistItems([]);
-        toast.success("Wishlist cleared");
+        toast.success(`${result.message}`);
       } else {
-        toast.error("Failed to clear wishlist");
+        toast.error(`${result.message}`);
       }
     } catch (error) {
-      console.error("Failed to clear wishlist:", error);
       toast.error("Something went wrong");
     } finally {
-      setLoadingStates((prev) => ({ ...prev, clear: false }));
+      setIsLoading(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-muted-foreground">Loading wishlist...</span>
-      </div>
-    );
-  }
 
   if (wishlistItems.length === 0) {
     return (
@@ -150,15 +95,15 @@ export function WishlistContent() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <p className="text-muted-foreground">
-          {wishlistItems.length} items in your wishlist
+          {wishlistItems?.length} items in your wishlist
         </p>
         <Button
           variant="outline"
           onClick={handleClearAll}
-          disabled={loadingStates.clear}
+          disabled={isLoading}
           className="bg-transparent"
         >
-          {loadingStates.clear ? (
+          {isLoading ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               Clearing...
@@ -169,8 +114,8 @@ export function WishlistContent() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {wishlistItems.map((item) => (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {wishlistItems?.map((item) => (
           <Card
             key={item.id}
             className="group hover:shadow-lg transition-all duration-300 border-border/50 overflow-hidden"
@@ -181,42 +126,38 @@ export function WishlistContent() {
                 <div className="absolute inset-0 honeycomb-pattern opacity-20"></div>
                 <img
                   src={item.image || "/placeholder.svg"}
-                  alt={item.name}
+                  alt={item.productName}
                   className="relative z-10 max-w-full h-auto group-hover:scale-105 transition-transform duration-300"
                 />
-
-                {/* Badges */}
-                <div className="absolute top-3 left-3 flex flex-col gap-2">
-                  {item.badge && (
-                    <Badge
-                      variant={
-                        item.badge === "Bestseller" ? "default" : "secondary"
-                      }
-                      className={
-                        item.badge === "Bestseller"
-                          ? "bg-primary text-primary-foreground"
-                          : item.badge === "Limited"
-                          ? "bg-destructive text-destructive-foreground"
-                          : "bg-secondary text-secondary-foreground"
-                      }
-                    >
-                      {item.badge}
+                <div className="absolute top-0 left-3 z-10 flex flex-col gap-1">
+                  {item.originalPrice && (
+                    <Badge variant="destructive" className="text-xs  ">
+                      Save ৳{item.originalPrice - item.price}
                     </Badge>
                   )}
-                  {!item.inStock && (
-                    <Badge variant="outline" className="bg-background/90">
-                      Out of Stock
+                  {item.availability && (
+                    <Badge
+                      variant={
+                        item.availability === "out-of-stock"
+                          ? "destructive"
+                          : "default"
+                      }
+                      size={"sm"}
+                    >
+                      {item.availability === "out-of-stock"
+                        ? "Out of Stock"
+                        : "In Stock"}
                     </Badge>
                   )}
                 </div>
 
                 {/* Remove Button */}
                 <button
-                  onClick={() => handleRemoveFromWishlist(item.productId)}
-                  disabled={loadingStates.remove[item.productId]}
-                  className="absolute top-3 right-3 p-2 rounded-full bg-background/80 hover:bg-background transition-colors disabled:opacity-50"
+                  onClick={() => handleRemoveFromWishlist(item.id)}
+                  disabled={isLoading}
+                  className="absolute top-0 right-3 p-2 border rounded-full bg-background hover:bg-gray-200 transition-colors disabled:opacity-50 z-10 cursor-pointer"
                 >
-                  {loadingStates.remove[item.productId] ? (
+                  {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                   ) : (
                     <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
@@ -232,7 +173,7 @@ export function WishlistContent() {
                       <Star
                         key={i}
                         className={`h-3 w-3 ${
-                          i < Math.floor(item.rating)
+                          i < Math.floor(item?.rating || 0)
                             ? "fill-primary text-primary"
                             : "text-muted-foreground/30"
                         }`}
@@ -240,17 +181,17 @@ export function WishlistContent() {
                     ))}
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    ({item.reviews})
+                    ({item?.reviews || 0})
                   </span>
                 </div>
 
                 {/* Product Info */}
                 <Link
-                  href={`/shop/${item.productId}`}
+                  href={`/shop/${item.id}`}
                   className="block group-hover:text-primary transition-colors"
                 >
                   <h3 className="font-semibold text-foreground mb-1 line-clamp-2">
-                    {item.name}
+                    {item.productName}
                   </h3>
                 </Link>
                 <p className="text-sm text-muted-foreground mb-3">
@@ -267,11 +208,6 @@ export function WishlistContent() {
                       ৳{item.originalPrice}
                     </span>
                   )}
-                  {item.originalPrice && (
-                    <Badge variant="destructive" className="text-xs">
-                      Save ৳{item.originalPrice - item.price}
-                    </Badge>
-                  )}
                 </div>
 
                 {/* Action Buttons */}
@@ -282,34 +218,32 @@ export function WishlistContent() {
                     size="sm"
                     className="flex-1 bg-transparent"
                   >
-                    <Link href={`/shop/${item.productId}`}>
+                    <Link href={`/shop/${item.id}`}>
                       <Eye className="h-4 w-4 mr-2" />
                       View
                     </Link>
                   </Button>
                   <Button
                     className="flex-1"
-                    disabled={
-                      !item.inStock || loadingStates.cart[item.productId]
-                    }
-                    onClick={() => handleAddToCart(item.productId)}
+                    disabled={isLoading}
+                    onClick={() => handleAddToCart(item.id)}
                   >
-                    {loadingStates.cart[item.productId] ? (
+                    {isLoading ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
                       <ShoppingCart className="h-4 w-4 mr-2" />
                     )}
-                    {loadingStates.cart[item.productId]
+                    {isLoading
                       ? "Adding..."
-                      : item.inStock
-                      ? "Add to Cart"
-                      : "Out of Stock"}
+                      : item.availability === "out-of-stock"
+                      ? "Out of Stock"
+                      : "Add to Cart"}
                   </Button>
                 </div>
 
                 {/* Date Added */}
-                <p className="text-xs text-muted-foreground mt-3 text-center">
-                  Added on {new Date(item.dateAdded).toLocaleDateString()}
+                <p className="text-xs text-muted-forground mt-3 text-center">
+                  Added on {new Date(item.createdAt).toLocaleString()}
                 </p>
               </CardContent>
             </div>
@@ -318,7 +252,7 @@ export function WishlistContent() {
       </div>
 
       {/* Continue Shopping */}
-      <div className="text-center pt-8">
+      <div className="text-center py-8">
         <Button asChild variant="outline" size="lg" className="bg-transparent">
           <Link href="/shop">
             <ShoppingCart className="h-4 w-4 mr-2" />

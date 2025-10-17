@@ -44,8 +44,6 @@ export default function Shop({
     query,
   });
 
-  console.log("Products data:", data);
-
   return (
     <>
       <aside className="lg:w-64 flex-shrink-0">
