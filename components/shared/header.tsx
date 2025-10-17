@@ -6,9 +6,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Badge } from "@/components/ui/badge";
+
 import { Menu, Phone, Heart, ShoppingCart } from "lucide-react";
 import { UserMenu } from "./user-menu";
+import WishlistBtn from "./wishlist-btn";
+import ShoppingCartBtn from "./shopping-cart-btn";
 
 export function Header() {
   const navigation = [
@@ -58,20 +60,8 @@ export function Header() {
               <span className="text-sm">+880 1234-567890</span>
             </Button>
 
-            <Button asChild variant="ghost" size="sm" className="relative">
-              <Link href="/wishlist">
-                <Heart className="h-4 w-4" />
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs">
-                  3
-                </Badge>
-              </Link>
-            </Button>
-
-            <Button variant="outline" size="sm" className="relative" asChild>
-              <Link href="/cart">
-                <ShoppingCart className="h-4 w-4" />
-              </Link>
-            </Button>
+            <WishlistBtn />
+            <ShoppingCartBtn />
 
             <UserMenu />
 

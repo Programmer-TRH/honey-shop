@@ -27,29 +27,15 @@ import {
   isProductWishlistedAction,
   removeFromWishlistAction,
 } from "@/actions/wishlist-actions";
+import { useWishlist } from "@/context/WishlistProvider";
 
 export function ProductDetails({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isWishlist, setIsWishlist] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
   const [productReviews, setProductReviews] = useState<any[]>([]);
-
-  useEffect(() => {
-    const checkWishlistStatus = async () => {
-      const inWishlist = await isProductWishlistedAction(product.id);
-      setIsWishlist(inWishlist!);
-    };
-
-    const loadReviews = async () => {
-      const reviews = await getProductReviews(product.id);
-      setProductReviews(reviews);
-    };
-
-    checkWishlistStatus();
-    loadReviews();
-  }, [product.id]);
+  const { isWishlisted, addToWishlist, removeFromWishlist } = useWishlist();
 
   const handleAddToCart = async () => {
     setIsLoading(true);
@@ -66,10 +52,10 @@ export function ProductDetails({ product }: { product: Product }) {
   const handleToggleWishlist = async () => {
     setIsTogglingWishlist(true);
     try {
-      if (isWishlist) {
+      if (isWishlisted(product.id)) {
         const result = await removeFromWishlistAction(product.id);
         if (result.success) {
-          setIsWishlist(false);
+          removeFromWishlist(product.id);
           toast.success("Removed from wishlist");
         } else {
           toast.error("Failed to remove from wishlist");
@@ -77,7 +63,7 @@ export function ProductDetails({ product }: { product: Product }) {
       } else {
         const result = await addToWishlistAction(product.id);
         if (result.success) {
-          setIsWishlist(true);
+          addToWishlist(product.id);
           toast.success("Added to wishlist");
         } else {
           toast.error("Failed to add to wishlist");
@@ -277,7 +263,7 @@ export function ProductDetails({ product }: { product: Product }) {
               >
                 <Heart
                   className={`h-5 w-5 ${
-                    isWishlist ? "fill-red-500 text-red-500" : ""
+                    isWishlisted(product.id) ? "fill-red-500 text-red-500" : ""
                   }`}
                 />
               </Button>

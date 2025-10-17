@@ -27,6 +27,7 @@ export function WishlistContent({ result }: { result: PaginatedWishlist }) {
       const result = await addToCartAction(productId);
       if (result.success) {
         removeFromWishlistAction(productId);
+        removeFromWishlist(productId);
         toast.success(`${result.message}`);
       } else {
         toast.error(`${result.message}`);
@@ -220,15 +221,19 @@ export function WishlistContent({ result }: { result: PaginatedWishlist }) {
                     asChild
                     variant="outline"
                     size="sm"
-                    className="flex-1 bg-transparent"
+                    className="flex-1 bg-transparent "
                   >
-                    <Link href={`/shop/${item.id}`}>
+                    <Link
+                      href={`/shop/${item.id}`}
+                      className="flex items-center gap-1"
+                    >
                       <Eye className="h-4 w-4 mr-2" />
                       View
                     </Link>
                   </Button>
                   <Button
                     className="flex-1"
+                    size={"sm"}
                     disabled={isLoading}
                     onClick={() => handleAddToCart(item.id)}
                   >
