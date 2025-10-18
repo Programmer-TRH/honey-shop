@@ -4,7 +4,6 @@ import { Footer } from "@/components/shared/footer";
 import FloatingCart from "@/components/shared/floating-cart";
 import { Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
-import LoadingSkeleton from "@/components/skeleton/loading-skeleton";
 
 export default function FrontEndLayout({
   children,
@@ -19,9 +18,7 @@ export default function FrontEndLayout({
         <Suspense fallback={null}>{children}</Suspense>
       </main>
       <Footer />
-      <Suspense fallback={<LoadingSkeleton />}>
-        <FloatingCart />
-      </Suspense>
+      <FloatingCart />
       <Toaster />
     </>
   );

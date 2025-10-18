@@ -1,5 +1,6 @@
 import { isAuthenticated } from "@/dal/isAuthenticated";
 import { getCart } from "@/services/cart-service";
+import { revalidateTag } from "next/cache"; // << use this
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -11,6 +12,7 @@ export async function GET(req: NextRequest) {
         { status: 401 }
       );
     }
+
     const result = await getCart(userId);
     if (!result) {
       return NextResponse.json(
@@ -19,11 +21,12 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    return NextResponse.json(
-      { success: true, data: result },
-      { headers: { "x-nextjs-revalidate-tag": "cart" } }
-    );
+    // ✅ Revalidate all pages/components tagged with "cart"
+    revalidateTag("cart");
+
+    return NextResponse.json({ success: true, data: result });
   } catch (error) {
+    console.error("Cart GET error:", error);
     return NextResponse.json(
       { success: false, message: "Internal Server Error" },
       { status: 500 }

@@ -19,14 +19,14 @@ import {
   Loader2,
 } from "lucide-react";
 import Link from "next/link";
-import { getCart } from "@/actions/cart-actions";
 import { placeOrder, type OrderData } from "@/actions/checkout-actions";
 import { useRouter } from "next/navigation";
+import { PaginatedCart } from "@/services/cart-service";
 
 export function CheckoutContent() {
   const [currentStep, setCurrentStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("cod");
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [cartItems, setCartItems] = useState<PaginatedCart>();
   const [subtotal, setSubtotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -45,9 +45,6 @@ export function CheckoutContent() {
     paymentMethod: "cod",
   });
 
-  const deliveryFee = subtotal >= 1000 ? 0 : 60;
-  const total = subtotal + deliveryFee;
-
   const steps = [
     { number: 1, title: "Delivery Info", completed: currentStep > 1 },
     { number: 2, title: "Payment", completed: currentStep > 2 },
@@ -57,9 +54,11 @@ export function CheckoutContent() {
   useEffect(() => {
     const loadCart = async () => {
       try {
-        const cart = await getCart();
-        setCartItems(cart.items);
-        setSubtotal(cart.total);
+        const response = await fetch("/api/cart", { next: { tags: ["cart"] } });
+        const cartData = await response.json();
+        console.log("Cart Data:", cartData);
+        setCartItems(cartData.data);
+        setSubtotal(cartData.data.subtotal);
       } catch (error) {
         console.error("Failed to load cart:", error);
       } finally {
@@ -118,7 +117,7 @@ export function CheckoutContent() {
   };
 
   const handlePlaceOrder = async () => {
-    if (cartItems.length === 0) {
+    if (cartItems?.items?.length === 0) {
       setErrors(["Your cart is empty"]);
       return;
     }
@@ -153,7 +152,7 @@ export function CheckoutContent() {
     );
   }
 
-  if (cartItems.length === 0) {
+  if (cartItems?.items?.length === 0) {
     return (
       <div className="text-center py-16">
         <div className="text-6xl mb-4">🛒</div>
@@ -514,11 +513,11 @@ export function CheckoutContent() {
             <CardContent className="space-y-4">
               {/* Items */}
               <div className="space-y-3">
-                {cartItems.map((item) => (
+                {cartItems?.items?.map((item) => (
                   <div key={item.id} className="flex items-center space-x-3">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">
-                        {item.name}
+                        {item.productName}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {item.weight} × {item.quantity}
@@ -534,15 +533,16 @@ export function CheckoutContent() {
               <Separator />
 
               {/* Totals */}
+
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>৳{subtotal}</span>
+                  <span>৳{cartItems?.subtotal}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Delivery</span>
                   <span>
-                    {deliveryFee === 0 ? (
+                    {cartItems?.deliveryCharge === 0 ? (
                       <Badge
                         variant="secondary"
                         className="bg-green-100 text-green-800 text-xs"
@@ -550,14 +550,14 @@ export function CheckoutContent() {
                         Free
                       </Badge>
                     ) : (
-                      `৳${deliveryFee}`
+                      `৳${cartItems?.deliveryCharge}`
                     )}
                   </span>
                 </div>
                 <Separator />
                 <div className="flex justify-between font-semibold">
                   <span>Total</span>
-                  <span className="text-primary">৳{total}</span>
+                  <span className="text-primary">৳{cartItems?.total}</span>
                 </div>
               </div>
             </CardContent>

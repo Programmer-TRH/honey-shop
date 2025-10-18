@@ -3,11 +3,21 @@
 import {
   addToCart,
   clearCart,
+  getCart,
   removeFromCart,
   updateQuantity,
 } from "@/services/cart-service";
 import { revalidateTag } from "next/cache";
 import { isAuthenticated } from "../dal/isAuthenticated";
+
+export async function getCartAction() {
+  const { isAuth, userId } = await isAuthenticated();
+  if (!isAuth) return;
+
+  const result = await getCart(userId!);
+  revalidateTag(`cart-${userId}`);
+  return result;
+}
 
 export async function addToCartAction(productId: string, quantity?: number) {
   const { isAuth, userId } = await isAuthenticated();

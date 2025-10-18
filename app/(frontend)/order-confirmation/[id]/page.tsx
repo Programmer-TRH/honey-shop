@@ -7,7 +7,7 @@ export default async function OrderConfirmationPage({
 }: {
   params: { id: string };
 }) {
-  const order = await getOrder(params.id);
+  const order = await getOrder(params?.id);
 
   if (!order) {
     notFound();

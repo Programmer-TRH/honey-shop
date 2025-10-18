@@ -1,7 +1,7 @@
 "use server";
 
-import { getCart, clearCart } from "@/actions/cart-actions";
 import { revalidatePath } from "next/cache";
+import { clearCartAction, getCartAction } from "./cart-actions";
 
 export interface OrderData {
   firstName: string;
@@ -84,9 +84,9 @@ export async function calculateDeliveryFee(
 
 export async function placeOrder(orderData: OrderData) {
   try {
-    const cart = await getCart();
+    const cart = await getCartAction();
 
-    if (cart.items.length === 0) {
+    if (cart?.items.length === 0) {
       return {
         success: false,
         error: "Cart is empty",
@@ -119,7 +119,7 @@ export async function placeOrder(orderData: OrderData) {
 
     // Calculate delivery fee
     const deliveryFee = await calculateDeliveryFee(orderData.city, "standard");
-    const total = cart.total + deliveryFee;
+    const total = cart?.total! + deliveryFee;
 
     // Generate order
     const orderNumber = `HN${Date.now().toString().slice(-6)}`;
@@ -129,8 +129,8 @@ export async function placeOrder(orderData: OrderData) {
       id: orderId,
       orderNumber,
       customerId: `customer_${Date.now()}`,
-      items: cart.items,
-      subtotal: cart.total,
+      items: cart?.items!,
+      subtotal: cart?.total!,
       deliveryFee,
       total,
       status: "pending",
@@ -158,7 +158,7 @@ export async function placeOrder(orderData: OrderData) {
     orders.push(order);
 
     // Clear cart after successful order
-    await clearCart();
+    await clearCartAction();
 
     // In real app, you would:
     // - Send confirmation email
@@ -182,9 +182,9 @@ export async function placeOrder(orderData: OrderData) {
 
 export async function processCheckout(checkoutData: CheckoutData) {
   try {
-    const cart = await getCart();
+    const cart = await getCartAction();
 
-    if (cart.items.length === 0) {
+    if (cart?.items.length === 0) {
       return { success: false, error: "Cart is empty" };
     }
 
@@ -193,7 +193,7 @@ export async function processCheckout(checkoutData: CheckoutData) {
       checkoutData.city,
       checkoutData.deliveryMethod
     );
-    const total = cart.total + deliveryFee;
+    const total = cart?.total! + deliveryFee;
 
     // Generate order
     const orderNumber = `HN${Date.now().toString().slice(-6)}`;
@@ -203,8 +203,8 @@ export async function processCheckout(checkoutData: CheckoutData) {
       id: orderId,
       orderNumber,
       customerId: `customer_${Date.now()}`,
-      items: cart.items,
-      subtotal: cart.total,
+      items: cart?.items!,
+      subtotal: cart?.total!,
       deliveryFee,
       total,
       status: "pending",
@@ -238,7 +238,7 @@ export async function processCheckout(checkoutData: CheckoutData) {
     orders.push(order);
 
     // Clear cart after successful order
-    await clearCart();
+    await clearCartAction();
 
     // In real app, you would:
     // - Send confirmation email

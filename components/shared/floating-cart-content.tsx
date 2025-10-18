@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -20,9 +20,21 @@ import {
 } from "@/actions/cart-actions";
 import { PaginatedCart } from "@/services/cart-service";
 
-export function FloatingCartContent({ result }: { result: PaginatedCart }) {
+export function FloatingCartContent() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [result, setCart] = useState<PaginatedCart>();
+
+  useEffect(() => {
+    const getData = async () => {
+      const response = await fetch(`api/cart`, { next: { tags: ["cart"] } });
+      const result = await response.json();
+      if (result.success) {
+        setCart(result.data);
+      }
+    };
+    getData();
+  }, []);
 
   const updateQuantity = async (id: string, newQuantity: number) => {
     setIsLoading(true);
@@ -54,10 +66,10 @@ export function FloatingCartContent({ result }: { result: PaginatedCart }) {
     }
   };
 
-  if (result.items?.length === 0) return null;
+  if (result?.items?.length === 0) return null;
 
   return (
-    result.items?.length && (
+    result?.items?.length && (
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Button
@@ -75,7 +87,7 @@ export function FloatingCartContent({ result }: { result: PaginatedCart }) {
           <SheetHeader>
             <SheetTitle className="flex items-center space-x-2">
               <ShoppingCart className="h-5 w-5" />
-              <span>Shopping Cart ({result.items?.length || 0})</span>
+              <span>Shopping Cart ({result?.items?.length || 0})</span>
             </SheetTitle>
           </SheetHeader>
 

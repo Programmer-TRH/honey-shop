@@ -67,9 +67,9 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>Order #{order.orderNumber}</span>
-                <Badge className={getStatusColor(order.status)}>
-                  {order.status.toUpperCase()}
+                <span>Order #{order?.orderNumber}</span>
+                <Badge className={getStatusColor(order?.status)}>
+                  {order?.status.toUpperCase()}
                 </Badge>
               </CardTitle>
             </CardHeader>
@@ -79,7 +79,7 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Order Date:</span>
                   <span className="font-medium">
-                    {formatDate(order.createdAt)}
+                    {formatDate(order?.createdAt)}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -88,7 +88,7 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
                     Estimated Delivery:
                   </span>
                   <span className="font-medium">
-                    {formatDate(order.estimatedDelivery)}
+                    {formatDate(order?.estimatedDelivery)}
                   </span>
                 </div>
               </div>
@@ -98,7 +98,7 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
               {/* Order Items */}
               <div className="space-y-3">
                 <h4 className="font-semibold text-foreground">Items Ordered</h4>
-                {order.items.map((item) => (
+                {order?.items.map((item) => (
                   <div
                     key={item.id}
                     className="flex items-center space-x-4 p-3 bg-muted/30 rounded-lg"
@@ -127,18 +127,20 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>৳{order.subtotal}</span>
+                  <span>৳{order?.subtotal}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Delivery Fee</span>
                   <span>
-                    {order.deliveryFee === 0 ? "Free" : `৳${order.deliveryFee}`}
+                    {order?.deliveryFee === 0
+                      ? "Free"
+                      : `৳${order?.deliveryFee}`}
                   </span>
                 </div>
                 <Separator />
                 <div className="flex justify-between font-semibold text-lg">
                   <span>Total</span>
-                  <span className="text-primary">৳{order.total}</span>
+                  <span className="text-primary">৳{order?.total}</span>
                 </div>
               </div>
             </CardContent>
@@ -159,14 +161,14 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
                     <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
                     <div>
                       <p className="font-medium text-foreground">
-                        {order.customerInfo.firstName}{" "}
-                        {order.customerInfo.lastName}
+                        {order?.customerInfo.firstName}{" "}
+                        {order?.customerInfo.lastName}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {order.customerInfo.address}
+                        {order?.customerInfo.address}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {order.customerInfo.area}, {order.customerInfo.city}
+                        {order?.customerInfo.area}, {order?.customerInfo.city}
                       </p>
                     </div>
                   </div>
@@ -178,27 +180,27 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
                       Phone:
                     </span>
                     <span className="text-sm font-medium">
-                      {order.customerInfo.phone}
+                      {order?.customerInfo.phone}
                     </span>
                   </div>
-                  {order.customerInfo.email && (
+                  {order?.customerInfo.email && (
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-muted-foreground">
                         Email:
                       </span>
                       <span className="text-sm font-medium">
-                        {order.customerInfo.email}
+                        {order?.customerInfo.email}
                       </span>
                     </div>
                   )}
                 </div>
               </div>
 
-              {order.customerInfo.notes && (
+              {order?.customerInfo.notes && (
                 <div className="pt-4 border-t">
                   <p className="text-sm text-muted-foreground">
                     <strong>Special Instructions:</strong>{" "}
-                    {order.customerInfo.notes}
+                    {order?.customerInfo.notes}
                   </p>
                 </div>
               )}
@@ -219,19 +221,19 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
               <div className="text-center">
                 <Badge
                   className={`${getStatusColor(
-                    order.status
+                    order?.status
                   )} text-sm px-3 py-1`}
                 >
-                  {order.status.toUpperCase()}
+                  {order?.status.toUpperCase()}
                 </Badge>
                 <p className="text-sm text-muted-foreground mt-2">
-                  {order.status === "pending" && "We're preparing your order"}
-                  {order.status === "confirmed" &&
+                  {order?.status === "pending" && "We're preparing your order"}
+                  {order?.status === "confirmed" &&
                     "Your order has been confirmed"}
-                  {order.status === "processing" &&
+                  {order?.status === "processing" &&
                     "Your order is being processed"}
-                  {order.status === "shipped" && "Your order is on the way"}
-                  {order.status === "delivered" &&
+                  {order?.status === "shipped" && "Your order is on the way"}
+                  {order?.status === "delivered" &&
                     "Your order has been delivered"}
                 </p>
               </div>
@@ -244,7 +246,7 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Payment Status</span>
                   <Badge variant="outline" className="text-xs">
-                    {order.paymentStatus.toUpperCase()}
+                    {order?.paymentStatus.toUpperCase()}
                   </Badge>
                 </div>
               </div>
